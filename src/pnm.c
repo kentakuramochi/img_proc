@@ -325,7 +325,6 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
     }
 
     uint8_t n_magic = (int)img->color_type + (int)format;
-    printf("magic: %d\n", n_magic);
     if ((n_magic < 1) || (n_magic > 6)) {
         return -1;
     }
