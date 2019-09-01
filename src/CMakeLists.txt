@@ -2,6 +2,7 @@ add_library(
     imgproc
     STATIC
     img.c
+    imgproc.c
     pnm.c
 )
 
