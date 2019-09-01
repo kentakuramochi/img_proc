@@ -1,9 +1,9 @@
 add_executable(
-    read_write_pnm
-    read_write_pnm.c
+    test_imgproc
+    test_imgproc.c
 )
 
 target_link_libraries(
-    read_write_pnm
+    test_imgproc
     imgproc
 )
