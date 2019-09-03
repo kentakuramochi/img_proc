@@ -4,16 +4,18 @@
 #include <stdio.h>
 #include <string.h>
 
+const char usage[] = "\
+USAGE\n\
+    ./test_imgproc src_pnm_file [--compress]\n\
+OPTIONS\n\
+    --compress: use binary format (P4/P5/P6) for output\n\
+                ASCII format (P1/P2/P3) is used as default\n";
+
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-        puts("USAGE");
-        printf("    %s src_pnm_file [--compress]\n", argv[0]);
-        puts("OPTIONS");
-        puts("    --compress: use binary format (P4/P5/P6) for output"); 
-        puts("                ASCII format (P1/P2/P3) is used as default");
-
-        return 1;
+    if ((argc < 2) || (argc > 3)) {
+        printf("%s", usage);
+        return -1;
     }
 
     PNM_FORMAT fmt = PNM_FORMAT_ASCII;
@@ -22,7 +24,6 @@ int main(int argc, char *argv[])
             fmt = PNM_FORMAT_BINARY;
         } else {
             printf("error: invalid option \"%s\"\n", argv[2]);
-
             return -1;
         }
     }
@@ -34,9 +35,7 @@ int main(int argc, char *argv[])
     }
 
     img_t *gray = img_allocate(src->width, src->height, COLOR_TYPE_GRAY);
-
-    cvt_to_gray(src, gray);
-
+    rgb_to_gray(src, gray);
     write_pnm(gray, "gray.pgm", fmt);
 
     img_free(src);

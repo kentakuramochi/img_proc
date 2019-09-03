@@ -3,6 +3,6 @@
 
 #include "img.h"
 
-void *cvt_to_gray(img_t *src, img_t *dst);
+void *rgb_to_gray(img_t *src, img_t *dst);
 
 #endif // IMGPROC_H

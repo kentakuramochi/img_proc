@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "imgproc.h"
 
-void *cvt_to_gray(img_t *src, img_t *dst)
+void *rgb_to_gray(img_t *src, img_t *dst)
 {
     if (src->color_type != COLOR_TYPE_RGB) {
         return NULL;
@@ -15,4 +15,6 @@ void *cvt_to_gray(img_t *src, img_t *dst)
                              0.587 * src->data[i].rgb.g +
                              0.114 * src->data[i].rgb.b);
     }
+
+    return;
 }
