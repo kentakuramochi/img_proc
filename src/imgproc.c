@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "imgproc.h"
 
-void *rgb_to_gray(img_t *src, img_t *dst)
+void rgb_to_gray(img_t *src, img_t *dst)
 {
     if (src->color_type != COLOR_TYPE_RGB) {
         return NULL;
