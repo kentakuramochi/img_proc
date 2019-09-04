@@ -2,6 +2,9 @@
 #include <float.h>
 #include "imgproc.h"
 
+// conversion formula by ITU-R BT.601
+#define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
+
 void rgb_to_gray(img_t *src, img_t *dst)
 {
     if (src->color_type != COLOR_TYPE_RGB) {
@@ -11,10 +14,7 @@ void rgb_to_gray(img_t *src, img_t *dst)
     dst->color_type = COLOR_TYPE_GRAY;
 
     for (int i = 0; i < src->width * src->height; i++) {
-        // BT.601
-        dst->data[i].gray = (0.299 * src->data[i].rgb.r +
-                             0.587 * src->data[i].rgb.g +
-                             0.114 * src->data[i].rgb.b);
+        dst->data[i].gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
     }
 
     return;
@@ -27,10 +27,7 @@ void binarize(img_t *src, img_t *dst, uint8_t threshold)
     }
 
     for (int i = 0; i < src->width * src->height; i++) {
-        // BT.601
-        uint8_t gray = (0.299 * src->data[i].rgb.r +
-                        0.587 * src->data[i].rgb.g +
-                        0.114 * src->data[i].rgb.b);
+        uint8_t gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
 
         dst->data[i].gray = (gray < threshold) ? 0 : 255;
     }
@@ -49,10 +46,7 @@ void binarize_otsu(img_t *src, img_t *dst)
     int histgram[256] = { 0 };
 
     for (int i = 0; i < n_pix; i++) {
-        // BT.601
-        uint8_t gray = (0.299 * src->data[i].rgb.r +
-                        0.587 * src->data[i].rgb.g +
-                        0.114 * src->data[i].rgb.b);
+        uint8_t gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
 
         dst->data[i].gray = gray;
 
@@ -77,8 +71,8 @@ void binarize_otsu(img_t *src, img_t *dst)
             m1 += i * histgram[i];
         }
 
-        w0 = n0 / n_pix;
-        w1 = n1 / n_pix;
+        w0 = (double)n0 / n_pix;
+        w1 = (double)n1 / n_pix;
         m0 /= n0;
         m1 /= n1;
 
