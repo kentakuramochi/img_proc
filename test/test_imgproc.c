@@ -38,8 +38,16 @@ int main(int argc, char *argv[])
     rgb_to_gray(src, gray);
     write_pnm(gray, "gray.pgm", fmt);
 
+    img_t *bin = img_allocate(src->width, src->height, COLOR_TYPE_GRAY);
+    binarize(src, bin, 100);
+    write_pnm(bin, "bin.pgm", fmt);
+
+    binarize_otsu(src, bin);
+    write_pnm(bin, "bin_otsu.pgm", fmt);
+
     img_free(src);
     img_free(gray);
+    img_free(bin);
 
     return 0;
 }
