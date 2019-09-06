@@ -90,3 +90,34 @@ void binarize_otsu(img_t *src, img_t *dst)
 
     return;
 }
+
+void quantize(img_t *src, img_t *dst, uint8_t level)
+{
+    if (src->color_type != COLOR_TYPE_RGB) {
+        return;
+    }
+
+    uint8_t q_unit = 256 / level;
+
+    for (int i = 0; i < src->width * src->height; i++) {
+        uint8_t thresh = 0;
+
+        for (int j = 0; j < level; j++) {
+            uint8_t qval =  (thresh + 0.5 * q_unit);
+
+            if (src->data[i].rgb.r >= thresh) {
+                dst->data[i].rgb.r = qval;
+            }
+            if (src->data[i].rgb.g >= thresh) {
+                dst->data[i].rgb.g = qval;
+            }
+            if (src->data[i].rgb.b >= thresh) {
+                dst->data[i].rgb.b = qval;
+            }
+
+            thresh += q_unit;
+        }
+    }
+
+    return;
+}

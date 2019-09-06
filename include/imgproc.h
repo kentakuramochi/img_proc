@@ -9,4 +9,6 @@ void binarize(img_t *src, img_t *dst, uint8_t threshold);
 
 void binarize_otsu(img_t *src, img_t *dst);
 
+void quantize(img_t *src, img_t *dst, uint8_t level);
+
 #endif // IMGPROC_H
