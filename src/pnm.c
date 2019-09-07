@@ -83,7 +83,7 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return -1;
+                    return RETURN_FAILURE;
                 }
                 img->map[y][x].gray = tmp;
             }
@@ -92,7 +92,7 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return -1;
+                    return RETURN_FAILURE;
                 }
                 img->map[y][x].gray = NORMALIZE_UINT8(tmp, max);
             }
@@ -101,24 +101,24 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return -1;
+                    return RETURN_FAILURE;
                 }
                 img->map[y][x].rgb.r = NORMALIZE_UINT8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return -1;
+                    return RETURN_FAILURE;
                 }
                 img->map[y][x].rgb.g = NORMALIZE_UINT8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return -1;
+                    return RETURN_FAILURE;
                 }
                 img->map[y][x].rgb.b = NORMALIZE_UINT8(tmp, max);
             }
         }
     }
 
-    return 0;
+    return RETURN_SUCCESS;
 }
 
 static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
@@ -130,7 +130,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
     if (n_magic == 4) {
         stride = sizeof(uint8_t) * ((img->width + 7) / 8);
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return -1;
+            return RETURN_FAILURE;
         }
 
         int pos   = 0;
@@ -142,7 +142,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return -1;
+                return RETURN_FAILURE;
             }
 
             for (int x = 0; x < img->width; x++) {
@@ -159,13 +159,13 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
     } else if (n_magic == 5) {
         stride = sizeof(uint8_t) * img->width;
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return -1;
+            return RETURN_FAILURE;
         }
 
         for (int y = 0; y < img->height; y++) {
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return -1;
+                return RETURN_FAILURE;
             }
             item = row;
 
@@ -176,13 +176,13 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
     } else {
         stride = (sizeof(uint8_t) * 3) * img->width;
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return -1;
+            return RETURN_FAILURE;
         }
 
         for (int y = 0; y < img->height; y++) {
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return -1;
+                return RETURN_FAILURE;
             }
             item = row;
 
@@ -196,7 +196,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 
     free(row);
 
-    return 0;
+    return RETURN_SUCCESS;
 }
 
 img_t *read_pnm(const char *src)
@@ -285,7 +285,7 @@ static int write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
         }
     }
 
-    return 0;
+    return RETURN_SUCCESS;
 }
 
 static int write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
@@ -323,25 +323,25 @@ static int write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
         }
     }
 
-    return 0;
+    return RETURN_SUCCESS;
 }
 
 int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
 {
     if (img == NULL) {
-        return -1;
+        return RETURN_FAILURE;
     }
 
     // convert color/format enum to int 2/3/5/6
     uint8_t n_magic = ((int)img->colorspace + 2) + (int)format;
 
     if ((n_magic < 1) || (n_magic > 6)) {
-        return -1;
+        return RETURN_FAILURE;
     }
 
     FILE *fp = fopen(dst, "wb");
     if (fp == NULL) {
-        return -1;
+        return RETURN_FAILURE;
     }
 
     fprintf(fp, "P%d\n", n_magic);
@@ -359,5 +359,5 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
 
     fclose(fp);
 
-    return 0;
+    return RETURN_FAILURE;
 }

@@ -5,25 +5,25 @@
 // conversion formula by ITU-R BT.601
 #define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
 
-void rgb_to_gray(img_t *src, img_t *dst)
+int rgb_to_gray(img_t *src, img_t *dst)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
-        return;
+    if ((src->colorspace != COLORSPACE_RGB) ||
+        (dst->colorspace != COLORSPACE_GRAY)) {
+        return RETURN_FAILURE;
     }
-
-    dst->colorspace = COLORSPACE_GRAY;
 
     for (int i = 0; i < src->width * src->height; i++) {
         dst->data[i].gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
     }
 
-    return;
+    return RETURN_SUCCESS;
 }
 
-void binarize(img_t *src, img_t *dst, uint8_t threshold)
+int binarize(img_t *src, img_t *dst, uint8_t threshold)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
-        return;
+    if ((src->colorspace != COLORSPACE_RGB) ||
+        (dst->colorspace != COLORSPACE_GRAY)) {
+        return RETURN_FAILURE;
     }
 
     for (int i = 0; i < src->width * src->height; i++) {
@@ -32,13 +32,14 @@ void binarize(img_t *src, img_t *dst, uint8_t threshold)
         dst->data[i].gray = (gray < threshold) ? 0 : 255;
     }
 
-    return;
+    return RETURN_SUCCESS;
 }
 
-void binarize_otsu(img_t *src, img_t *dst)
+int binarize_otsu(img_t *src, img_t *dst)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
-        return;
+    if ((src->colorspace != COLORSPACE_RGB) ||
+        (dst->colorspace != COLORSPACE_GRAY)) {
+        return RETURN_FAILURE;
     }
 
     int n_pix = src->width * src->height;
@@ -88,13 +89,14 @@ void binarize_otsu(img_t *src, img_t *dst)
         dst->data[i].gray = (dst->data[i].gray < threshold) ? 0 : 255;
     }
 
-    return;
+    return RETURN_SUCCESS;
 }
 
-void quantize(img_t *src, img_t *dst, uint8_t level)
+int quantize(img_t *src, img_t *dst, uint8_t level)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
-        return;
+    if ((src->colorspace != COLORSPACE_RGB) ||
+        (src->colorspace != COLORSPACE_RGB)) {
+        return RETURN_FAILURE;
     }
 
     uint8_t q_unit = 256 / level;
@@ -119,5 +121,5 @@ void quantize(img_t *src, img_t *dst, uint8_t level)
         }
     }
 
-    return;
+    return RETURN_SUCCESS;
 }

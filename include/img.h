@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+typedef enum {
+    RETURN_SUCCESS = 0,
+    RETURN_FAILURE
+} RETURN;
+
 typedef struct {
     uint8_t r;
     uint8_t g;
