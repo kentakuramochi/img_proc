@@ -1,6 +1,5 @@
 #include "pnm.h"
 #include "imgproc.h"
-
 #include <stdio.h>
 #include <string.h>
 
@@ -19,6 +18,7 @@ int main(int argc, char *argv[])
     }
 
     PNM_FORMAT fmt = PNM_FORMAT_ASCII;
+
     if (argc == 3) {
         if (strcmp(argv[2], "--compress") == 0) {
             fmt = PNM_FORMAT_BINARY;
@@ -29,30 +29,19 @@ int main(int argc, char *argv[])
     }
 
     img_t *src = read_pnm(argv[1]);
+
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
         return -1;
     }
 
-    img_t *gray = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-    rgb_to_gray(src, gray);
-    write_pnm(gray, "gray.pgm", fmt);
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
 
-    img_t *bin = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-    binarize(src, bin, 100);
-    write_pnm(bin, "bin.pgm", fmt);
-
-    binarize_otsu(src, bin);
-    write_pnm(bin, "bin_otsu.pgm", fmt);
-
-    img_t *quantized = img_allocate(src->width, src->height, COLORSPACE_RGB);
-    quantize(src, quantized, 4);
-    write_pnm(quantized, "quantized.ppm", fmt);
+    rgb_to_gray(src, dst);
+    write_pnm(dst, "gray.pgm", fmt);
 
     img_free(src);
-    img_free(gray);
-    img_free(bin);
-    img_free(quantized);
+    img_free(dst);
 
     return 0;
 }
