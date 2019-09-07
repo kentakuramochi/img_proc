@@ -15,20 +15,19 @@ typedef struct {
 } pixel_t;
 
 typedef enum {
-    COLOR_TYPE_BINARY = 1,
-    COLOR_TYPE_GRAY   = 2,
-    COLOR_TYPE_RGB    = 3
-} color_type_t;
+    COLORSPACE_GRAY,
+    COLORSPACE_RGB
+} COLORSPACE;
 
 typedef struct {
     uint32_t     width;
     uint32_t     height;
-    color_type_t color_type;
     pixel_t      *data;
     pixel_t      **map;
+    COLORSPACE   colorspace;
 } img_t;
 
-img_t *img_allocate(uint32_t width, uint32_t height, color_type_t color_type);
+img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace);
 
 img_t *img_clone(img_t *src);
 

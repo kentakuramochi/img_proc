@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-img_t *img_allocate(uint32_t width, uint32_t height, color_type_t color_type)
+img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
 {
     img_t *img = (img_t*)malloc(sizeof(img_t));
     if (img == NULL) {
@@ -12,7 +12,7 @@ img_t *img_allocate(uint32_t width, uint32_t height, color_type_t color_type)
 
     img->width      = width;
     img->height     = height;
-    img->color_type = color_type;
+    img->colorspace = colorspace;
 
     img->data = (pixel_t*)malloc(sizeof(pixel_t) * (img->height * img->width));
     if (img->data == NULL) {
@@ -42,7 +42,7 @@ img_t *img_allocate(uint32_t width, uint32_t height, color_type_t color_type)
 
 img_t *img_clone(img_t *src)
 {
-    img_t *img = img_allocate(src->width, src->height, src->color_type);
+    img_t *img = img_allocate(src->width, src->height, src->colorspace);
     if (img == NULL) {
         return NULL;
     }

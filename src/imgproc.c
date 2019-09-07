@@ -7,11 +7,11 @@
 
 void rgb_to_gray(img_t *src, img_t *dst)
 {
-    if (src->color_type != COLOR_TYPE_RGB) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return;
     }
 
-    dst->color_type = COLOR_TYPE_GRAY;
+    dst->colorspace = COLORSPACE_GRAY;
 
     for (int i = 0; i < src->width * src->height; i++) {
         dst->data[i].gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
@@ -22,7 +22,7 @@ void rgb_to_gray(img_t *src, img_t *dst)
 
 void binarize(img_t *src, img_t *dst, uint8_t threshold)
 {
-    if (src->color_type != COLOR_TYPE_RGB) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return;
     }
 
@@ -37,7 +37,7 @@ void binarize(img_t *src, img_t *dst, uint8_t threshold)
 
 void binarize_otsu(img_t *src, img_t *dst)
 {
-    if (src->color_type != COLOR_TYPE_RGB) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return;
     }
 
@@ -93,7 +93,7 @@ void binarize_otsu(img_t *src, img_t *dst)
 
 void quantize(img_t *src, img_t *dst, uint8_t level)
 {
-    if (src->color_type != COLOR_TYPE_RGB) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return;
     }
 

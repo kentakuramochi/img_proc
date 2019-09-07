@@ -34,17 +34,18 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    img_t *gray = img_allocate(src->width, src->height, COLOR_TYPE_GRAY);
+    img_t *gray = img_allocate(src->width, src->height, COLORSPACE_GRAY);
     rgb_to_gray(src, gray);
     write_pnm(gray, "gray.pgm", fmt);
-    img_t *bin = img_allocate(src->width, src->height, COLOR_TYPE_GRAY);
+
+    img_t *bin = img_allocate(src->width, src->height, COLORSPACE_GRAY);
     binarize(src, bin, 100);
     write_pnm(bin, "bin.pgm", fmt);
 
     binarize_otsu(src, bin);
     write_pnm(bin, "bin_otsu.pgm", fmt);
 
-    img_t *quantized = img_allocate(src->width, src->height, COLOR_TYPE_RGB);
+    img_t *quantized = img_allocate(src->width, src->height, COLORSPACE_RGB);
     quantize(src, quantized, 4);
     write_pnm(quantized, "quantized.ppm", fmt);
 

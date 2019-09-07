@@ -214,11 +214,19 @@ img_t *read_pnm(const char *src)
         return NULL;
     }
 
-    color_type_t color_type;
-    if (n_magic <= 3) {
-        color_type = (color_type_t)(n_magic);
-    } else {
-        color_type = (color_type_t)(n_magic - 3);
+    COLORSPACE colorspace;
+
+    switch (n_magic) {
+        case 1: colorspace = COLORSPACE_GRAY; break;
+        case 2: colorspace = COLORSPACE_GRAY; break;
+        case 3: colorspace = COLORSPACE_RGB;  break;
+        case 4: colorspace = COLORSPACE_GRAY; break;
+        case 5: colorspace = COLORSPACE_GRAY; break;
+        case 6: colorspace = COLORSPACE_RGB;  break;
+        default:
+            fclose(fp);
+            return NULL;
+            break;
     }
 
     uint32_t width  = get_next_int(fp);
@@ -239,7 +247,7 @@ img_t *read_pnm(const char *src)
         }
     }
 
-    img_t *img = img_allocate(width, height, color_type);
+    img_t *img = img_allocate(width, height, colorspace);
 
     if (n_magic <= 3) {
         if (read_pnm_ascii(fp, img, max, n_magic) < 0) {
@@ -324,7 +332,9 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
         return -1;
     }
 
-    uint8_t n_magic = (int)img->color_type + (int)format;
+    // convert color/format enum to int 2/3/5/6
+    uint8_t n_magic = ((int)img->colorspace + 2) + (int)format;
+
     if ((n_magic < 1) || (n_magic > 6)) {
         return -1;
     }
