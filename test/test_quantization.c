@@ -32,14 +32,14 @@ int main(int argc, char *argv[])
     uint8_t level = atoi(argv[2]);
 
     img_t *src = read_pnm(argv[1]);
+
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
         return -1;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_RGB);
+    img_t *dst = quantize(src, level);
 
-    quantize(src, dst, level);
     write_pnm(dst, "quant.ppm", fmt);
 
     img_free(src);

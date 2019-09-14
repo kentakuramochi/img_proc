@@ -3,12 +3,12 @@
 
 #include "img.h"
 
-int rgb_to_gray(img_t *src, img_t *dst);
+img_t *rgb_to_gray(img_t *src);
 
-int binarize(img_t *src, img_t *dst, uint8_t threshold);
+img_t *binarize(img_t *src, uint8_t threshold);
 
-int binarize_otsu(img_t *src, img_t *dst);
+img_t *binarize_otsu(img_t *src);
 
-int quantize(img_t *src, img_t *dst, uint8_t level);
+img_t *quantize(img_t *src, uint8_t level);
 
 #endif // IMGPROC_H

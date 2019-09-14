@@ -35,9 +35,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = rgb_to_gray(src);
 
-    rgb_to_gray(src, dst);
     write_pnm(dst, "gray.pgm", fmt);
 
     img_free(src);

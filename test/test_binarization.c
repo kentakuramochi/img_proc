@@ -38,16 +38,17 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = binarize(src, threshold);
 
-    binarize(src, dst, threshold);
     write_pnm(dst, "bin.pgm", fmt);
 
-    binarize_otsu(src, dst);
-    write_pnm(dst, "bin_otsu.pgm", fmt);
+    img_t *dst2 = binarize_otsu(src);
+
+    write_pnm(dst2, "bin_otsu.pgm", fmt);
 
     img_free(src);
     img_free(dst);
+    img_free(dst2);
 
     return 0;
 }

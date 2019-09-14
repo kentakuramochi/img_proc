@@ -5,17 +5,17 @@
 // conversion formula by ITU-R BT.601
 #define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
 
-int rgb_to_gray(img_t *src, img_t *dst)
+img_t *rgb_to_gray(img_t *src)
 {
     if (src->colorspace != COLORSPACE_RGB) {
-        return RETURN_FAILURE;
+        return NULL;
     }
 
-    if (dst != NULL) {
-        img_free(dst);
-    }
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
 
-    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
 
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
@@ -23,20 +23,20 @@ int rgb_to_gray(img_t *src, img_t *dst)
         }
     }
 
-    return RETURN_SUCCESS;
+    return dst;
 }
 
-int binarize(img_t *src, img_t *dst, uint8_t threshold)
+img_t *binarize(img_t *src, uint8_t threshold)
 {
     if (src->colorspace != COLORSPACE_RGB) {
-        return RETURN_FAILURE;
+        return NULL;
     }
 
-    if (dst != NULL) {
-        img_free(dst);
-    }
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
 
-    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
 
     uint8_t gray;
 
@@ -48,20 +48,21 @@ int binarize(img_t *src, img_t *dst, uint8_t threshold)
         }
     }
 
-    return RETURN_SUCCESS;
+    return dst;
 }
 
-int binarize_otsu(img_t *src, img_t *dst)
+img_t *binarize_otsu(img_t *src)
 {
     if (src->colorspace != COLORSPACE_RGB) {
         return RETURN_FAILURE;
     }
 
-    if (dst != NULL) {
-        img_free(dst);
-    }
 
-    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+
+    if (dst == NULL) {
+        return NULL;
+    }
 
     int n_pix = src->width * src->height;
 
@@ -114,16 +115,16 @@ int binarize_otsu(img_t *src, img_t *dst)
         dst->data[i] = (dst->data[i] < threshold) ? 0 : 255;
     }
 
-    return RETURN_SUCCESS;
+    return dst;
 }
 
-int quantize(img_t *src, img_t *dst, uint8_t level)
+img_t *quantize(img_t *src, uint8_t level)
 {
-    if (dst != NULL) {
-        img_free(dst);
-    }
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
 
-    dst = img_allocate(src->width, src->height, src->colorspace);
+    if (dst == NULL) {
+        return NULL;
+    }
 
     uint8_t q_unit = 256 / level;
 
@@ -147,5 +148,5 @@ int quantize(img_t *src, img_t *dst, uint8_t level)
         }
     }
 
-    return RETURN_SUCCESS;
+    return dst;
 }
