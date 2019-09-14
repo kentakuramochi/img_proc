@@ -6,15 +6,32 @@
 img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
 {
     img_t *img = (img_t*)malloc(sizeof(img_t));
+
     if (img == NULL) {
         return NULL;
     }
 
-    img->width      = width;
-    img->height     = height;
+    img->width  = width;
+    img->height = height;
+
+    switch (colorspace) {
+        case COLORSPACE_RGB:
+            img->channel = 3;
+            break;
+        case COLORSPACE_GRAY:
+            img->channel = 1;
+            break;
+        default:
+            free(img);
+            img = NULL;
+            return NULL;
+            break;
+    }
+
     img->colorspace = colorspace;
 
-    img->data = (pixel_t*)malloc(sizeof(pixel_t) * (img->height * img->width));
+    img->data = (uint8_t*)malloc(sizeof(uint8_t) * (img->channel * img->height * img->width));
+
     if (img->data == NULL) {
         free(img);
         img = NULL;
@@ -22,8 +39,9 @@ img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
         return NULL;
     }
 
-    img->map = (pixel_t**)malloc(sizeof(pixel_t*) * img->height);
-    if (img->map == NULL) {
+    img->row = (uint8_t**)malloc(sizeof(uint8_t*) * (img->channel * img->height));
+
+    if (img->row == NULL) {
         free(img->data);
         img->data = NULL;
 
@@ -33,8 +51,27 @@ img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
         return NULL;
     }
 
-    for (int y = 0; y < img->height; y++) {
-        img->map[y] = &img->data[y * img->width];
+    for (int y = 0; y < (img->channel * img->height); y++) {
+        img->row[y] = img->data + (y * img->width);
+    }
+
+    img->ch = (uint8_t***)malloc(sizeof(uint8_t**) * img->channel);
+
+    if (img->ch == NULL) {
+        free(img->row);
+        img->row = NULL;
+
+        free(img->data);
+        img->data = NULL;
+
+        free(img);
+        img = NULL;
+
+        return NULL;
+    }
+
+    for (int c = 0; c < img->channel; c++) {
+        img->ch[c] = img->row + (c * img->height);
     }
 
     return img;
@@ -42,20 +79,28 @@ img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
 
 img_t *img_clone(img_t *src)
 {
-    img_t *img = img_allocate(src->width, src->height, src->colorspace);
-    if (img == NULL) {
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+
+    if (dst == NULL) {
         return NULL;
     }
 
-    memcpy(img->data, src->data, (sizeof(pixel_t) * img->width * img->height));
+    memcpy(dst->data, src->data, sizeof(uint8_t) * (dst->channel * dst->height * dst->width));
 
-    return img;
+    return dst;
 }
 
 void img_free(img_t *img)
 {
-    free(img->map);
-    img->map = NULL;
+    if (img == NULL) {
+        return;
+    }
+
+    free(img->ch);
+    img->ch = NULL;
+
+    free(img->row);
+    img->row = NULL;
 
     free(img->data);
     img->data = NULL;

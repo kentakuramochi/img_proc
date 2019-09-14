@@ -8,28 +8,19 @@ typedef enum {
     RETURN_FAILURE
 } RETURN;
 
-typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} color_t;
-
-typedef struct {
-    color_t rgb;
-    uint8_t gray;
-} pixel_t;
-
 typedef enum {
     COLORSPACE_GRAY,
     COLORSPACE_RGB
 } COLORSPACE;
 
 typedef struct {
-    uint32_t     width;
-    uint32_t     height;
-    pixel_t      *data;
-    pixel_t      **map;
-    COLORSPACE   colorspace;
+    uint32_t    width;
+    uint32_t    height;
+    uint32_t    channel;
+    COLORSPACE  colorspace;
+    uint8_t     *data;
+    uint8_t     **row;
+    uint8_t     ***ch;
 } img_t;
 
 img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace);

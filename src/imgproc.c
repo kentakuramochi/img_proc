@@ -7,13 +7,20 @@
 
 int rgb_to_gray(img_t *src, img_t *dst)
 {
-    if ((src->colorspace != COLORSPACE_RGB) ||
-        (dst->colorspace != COLORSPACE_GRAY)) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return RETURN_FAILURE;
     }
 
-    for (int i = 0; i < src->width * src->height; i++) {
-        dst->data[i].gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
+    if (dst != NULL) {
+        img_free(dst);
+    }
+
+    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+
+    for (int y = 0; y < src->height; y++) {
+        for (int x = 0; x < src->width; x++) {
+            dst->row[y][x] = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+        }
     }
 
     return RETURN_SUCCESS;
@@ -21,15 +28,24 @@ int rgb_to_gray(img_t *src, img_t *dst)
 
 int binarize(img_t *src, img_t *dst, uint8_t threshold)
 {
-    if ((src->colorspace != COLORSPACE_RGB) ||
-        (dst->colorspace != COLORSPACE_GRAY)) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return RETURN_FAILURE;
     }
 
-    for (int i = 0; i < src->width * src->height; i++) {
-        uint8_t gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
+    if (dst != NULL) {
+        img_free(dst);
+    }
 
-        dst->data[i].gray = (gray < threshold) ? 0 : 255;
+    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+
+    uint8_t gray;
+
+    for (int y = 0; y < src->height; y++) {
+        for (int x = 0; x < src->width; x++) {
+            gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+
+            dst->row[y][x] = (gray < threshold) ? 0 : 255;
+        }
     }
 
     return RETURN_SUCCESS;
@@ -37,21 +53,30 @@ int binarize(img_t *src, img_t *dst, uint8_t threshold)
 
 int binarize_otsu(img_t *src, img_t *dst)
 {
-    if ((src->colorspace != COLORSPACE_RGB) ||
-        (dst->colorspace != COLORSPACE_GRAY)) {
+    if (src->colorspace != COLORSPACE_RGB) {
         return RETURN_FAILURE;
     }
+
+    if (dst != NULL) {
+        img_free(dst);
+    }
+
+    dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
 
     int n_pix = src->width * src->height;
 
     int histgram[256] = { 0 };
 
-    for (int i = 0; i < n_pix; i++) {
-        uint8_t gray = BT601(src->data[i].rgb.r, src->data[i].rgb.g, src->data[i].rgb.b);
+    uint8_t gray;
 
-        dst->data[i].gray = gray;
+    for (int y = 0; y < src->height; y++) {
+        for (int x = 0; x < src->width; x++) {
+            gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
 
-        histgram[gray]++;
+            dst->row[y][x] = gray;
+
+            histgram[gray]++;
+        }
     }
 
     uint8_t threshold = 0;
@@ -86,7 +111,7 @@ int binarize_otsu(img_t *src, img_t *dst)
     }
 
     for (int i = 0; i < n_pix; i++) {
-        dst->data[i].gray = (dst->data[i].gray < threshold) ? 0 : 255;
+        dst->data[i] = (dst->data[i] < threshold) ? 0 : 255;
     }
 
     return RETURN_SUCCESS;
@@ -94,28 +119,29 @@ int binarize_otsu(img_t *src, img_t *dst)
 
 int quantize(img_t *src, img_t *dst, uint8_t level)
 {
-    if ((src->colorspace != COLORSPACE_RGB) ||
-        (src->colorspace != COLORSPACE_RGB)) {
-        return RETURN_FAILURE;
+    if (dst != NULL) {
+        img_free(dst);
     }
+
+    dst = img_allocate(src->width, src->height, src->colorspace);
 
     uint8_t q_unit = 256 / level;
 
-    for (int i = 0; i < src->width * src->height; i++) {
+    for (int i = 0; i < (src->channel * src->height * src->width); i++) {
         uint8_t thresh = 0;
 
         for (int j = 0; j < level; j++) {
             uint8_t qval =  (thresh + 0.5 * q_unit);
 
-            if (src->data[i].rgb.r >= thresh) {
-                dst->data[i].rgb.r = qval;
+            if (src->data[i] >= thresh) {
+                dst->data[i] = qval;
             }
-            if (src->data[i].rgb.g >= thresh) {
+            /*if (src->data[i].rgb.g >= thresh) {
                 dst->data[i].rgb.g = qval;
             }
             if (src->data[i].rgb.b >= thresh) {
                 dst->data[i].rgb.b = qval;
-            }
+            }*/
 
             thresh += q_unit;
         }
