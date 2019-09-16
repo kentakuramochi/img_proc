@@ -11,4 +11,6 @@ img_t *binarize_otsu(img_t *src);
 
 img_t *quantize(img_t *src, uint8_t level);
 
+img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
+
 #endif // IMGPROC_H

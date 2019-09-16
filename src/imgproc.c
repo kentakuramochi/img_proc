@@ -137,14 +137,44 @@ img_t *quantize(img_t *src, uint8_t level)
             if (src->data[i] >= thresh) {
                 dst->data[i] = qval;
             }
-            /*if (src->data[i].rgb.g >= thresh) {
-                dst->data[i].rgb.g = qval;
-            }
-            if (src->data[i].rgb.b >= thresh) {
-                dst->data[i].rgb.b = qval;
-            }*/
 
             thresh += q_unit;
+        }
+    }
+
+    return dst;
+}
+
+img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+{
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    float k_1 = 1.0 / (kernel_w * kernel_h);
+
+    for (int c = 0; c < dst->channel; c++) {
+        for (int y = 0; y < dst->height; y += kernel_h) {
+            for (int x = 0; x < dst->width; x += kernel_w) {
+
+                int avg = 0;
+
+                for (int i = 0; i < kernel_h; i++) {
+                    for (int j = 0; j < kernel_w; j++) {
+                        avg += src->ch[c][y + i][x + j];
+                    }
+                }
+
+                avg *= k_1;
+
+                for (int i = 0; i < kernel_h; i++) {
+                    for (int j = 0; j < kernel_w; j++) {
+                        dst->ch[c][y + i][x + j] = avg;
+                    }
+                }
+            }
         }
     }
 
