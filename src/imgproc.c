@@ -58,9 +58,8 @@ img_t *binarize(img_t *src, uint8_t threshold)
 img_t *binarize_otsu(img_t *src)
 {
     if (src->colorspace != COLORSPACE_RGB) {
-        return RETURN_FAILURE;
+        return NULL;
     }
-
 
     img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
 
@@ -241,7 +240,6 @@ img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
     for (int y = 0; y < kernel_size; y++) {
         kx = ofs_x;
         for (int x = 0; x < kernel_size; x++) {
-            //kernel[y * kernel_size + x] = 1 / (sqrt(2 * M_PI) * stddev) * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
             kernel[y * kernel_size + x] = coef * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
             sum += kernel[y * kernel_size + x];
             kx++;
