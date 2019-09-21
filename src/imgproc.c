@@ -1,5 +1,6 @@
 #include "imgproc.h"
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <float.h>
 #include <math.h>
@@ -272,6 +273,66 @@ img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
                 }
 
                 dst->ch[c][y][x] = (uint8_t)filtered;
+            }
+        }
+    }
+
+    return dst;
+}
+
+static int cmp_ascend(const void *a, const void *b)
+{
+    return *(uint8_t*)a - *(uint8_t*)b;
+}
+
+img_t *median_filter(img_t *src, uint32_t kernel_size)
+{
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    const int ksize = kernel_size * kernel_size;
+
+    const int mid_idx = (ksize - 1) / 2;
+
+    uint8_t kernel[ksize];
+
+    int ofs_y = -(int)kernel_size / 2;
+    int ofs_x = -(int)kernel_size / 2;
+
+    int ky, kx;
+
+    for (int c = 0; c < dst->channel; c++) {
+        for (int y = 0; y < dst->height; y ++) {
+            for (int x = 0; x < dst->width; x ++) {
+                uint8_t median = 0;
+                ky = y + ofs_y;
+
+                for (int i = 0; i < kernel_size; i++) {
+                    kx = x + ofs_x;
+                    for (int j = 0; j < kernel_size; j++) {
+                        if ((ky >= 0) && (ky < src->height) &&
+                            (kx >= 0) && (kx < src->width)) {
+                            kernel[i * kernel_size + j] = src->ch[c][ky][kx];
+                        } else {
+                            kernel[i * kernel_size + j] = 0;
+                        }
+                        kx++;
+                    }
+                    ky++;
+                }
+
+                qsort(kernel, ksize, 1, cmp_ascend);
+
+                if (kernel_size % 2 == 1) {
+                    median = kernel[mid_idx];
+                } else {
+                    median = (kernel[mid_idx] + kernel[mid_idx + 1]) / 2;
+                }
+
+                dst->ch[c][y][x] = median;
             }
         }
     }

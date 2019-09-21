@@ -17,4 +17,6 @@ img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 
 img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev);
 
+img_t *median_filter(img_t *src, uint32_t kernel_size);
+
 #endif // IMGPROC_H
