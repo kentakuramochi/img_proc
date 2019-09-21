@@ -1,6 +1,10 @@
+#include "imgproc.h"
+
 #include <stddef.h>
 #include <float.h>
-#include "imgproc.h"
+#include <math.h>
+
+const double M_PI = 3.14159265358979;
 
 // conversion formula by ITU-R BT.601
 #define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
@@ -174,6 +178,102 @@ img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
                         dst->ch[c][y + i][x + j] = avg;
                     }
                 }
+            }
+        }
+    }
+
+    return dst;
+}
+
+img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+{
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    for (int c = 0; c < dst->channel; c++) {
+        for (int y = 0; y < dst->height; y += kernel_h) {
+            for (int x = 0; x < dst->width; x += kernel_w) {
+
+                int max = 0;
+
+                for (int i = 0; i < kernel_h; i++) {
+                    for (int j = 0; j < kernel_w; j++) {
+                        if (max < src->ch[c][y + i][x + j]) {
+                            max = src->ch[c][y + i][x + j];
+                        }
+                    }
+                }
+
+                for (int i = 0; i < kernel_h; i++) {
+                    for (int j = 0; j < kernel_w; j++) {
+                        dst->ch[c][y + i][x + j] = max;
+                    }
+                }
+            }
+        }
+    }
+
+    return dst;
+}
+
+img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
+{
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[kernel_size * kernel_size];
+
+    double coef = 1 / (sqrt(2 * M_PI) * stddev);
+    double sum  = 0;
+
+    int ofs_y = -(int)kernel_size / 2;
+    int ofs_x = -(int)kernel_size / 2;
+
+    int ky, kx;
+
+    ky = ofs_y;
+    for (int y = 0; y < kernel_size; y++) {
+        kx = ofs_x;
+        for (int x = 0; x < kernel_size; x++) {
+            //kernel[y * kernel_size + x] = 1 / (sqrt(2 * M_PI) * stddev) * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
+            kernel[y * kernel_size + x] = coef * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
+            sum += kernel[y * kernel_size + x];
+            kx++;
+        }
+        ky++;
+    }
+
+    for (int y = 0; y < kernel_size; y++) {
+        for (int x = 0; x < kernel_size; x++) {
+            kernel[y * kernel_size + x] /= sum;
+        }
+    }
+
+    for (int c = 0; c < dst->channel; c++) {
+        for (int y = 0; y < dst->height; y ++) {
+            for (int x = 0; x < dst->width; x ++) {
+                double filtered = 0;
+                ky = y + ofs_y;
+
+                for (int i = 0; i < kernel_size; i++) {
+                    kx = x + ofs_x;
+                    for (int j = 0; j < kernel_size; j++) {
+                        if ((ky >= 0) && (ky < src->height) &&
+                            (kx >= 0) && (kx < src->width)) {
+                            filtered += src->ch[c][ky][kx] * kernel[i * kernel_size + j];
+                        }
+                        kx++;
+                    }
+                    ky++;
+                }
+
+                dst->ch[c][y][x] = (uint8_t)filtered;
             }
         }
     }

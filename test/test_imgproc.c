@@ -73,6 +73,28 @@ void test_avgpool(img_t *src, const char *dst_file, int kw, int kh)
     return;
 }
 
+void test_maxpool(img_t *src, const char *dst_file, int kw, int kh)
+{
+    img_t *dst = max_pooling(src, kw, kh);
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
+void test_gaussianfilter(img_t *src, const char *dst_file, int kernel_size, double stddev)
+{
+    img_t *dst = gaussian_filter(src, kernel_size, stddev);
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
@@ -113,6 +135,8 @@ int main(int argc, char *argv[])
     test_binarize_otsu(src, "bin_otsu.pgm");
     test_quantize(src, "quant_8.ppm", 8);
     test_avgpool(src, "avgpool_8x8.ppm", 8, 8);
+    test_maxpool(src, "maxpool_8x8.ppm", 8, 8);
+    test_gaussianfilter(src, "gaussian_3x3.ppm", 3, 1.3);
 
     img_free(src);
 
