@@ -49,7 +49,7 @@ img_t *binarize(img_t *src, uint8_t threshold)
         for (int x = 0; x < src->width; x++) {
             gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
 
-            dst->row[y][x] = (gray < threshold) ? 0 : 255;
+            dst->row[y][x] = (gray < threshold) ? 0 : UINT8_MAX;
         }
     }
 
@@ -87,7 +87,7 @@ img_t *binarize_otsu(img_t *src)
     uint8_t threshold = 0;
     double  sb_max    = 0.0;
 
-    for (int th = 0; th < 255; th++) {
+    for (int th = 0; th < UINT8_MAX; th++) {
         int    n0 = 0, n1 = 0;
         double w0, w1;
         double m0 = 0.0 , m1 = 0.0;
@@ -97,7 +97,7 @@ img_t *binarize_otsu(img_t *src)
             m0 += i * histgram[i];
         }
 
-        for (int i = th; i <= 255; i++) {
+        for (int i = th; i <= UINT8_MAX; i++) {
             n1 += histgram[i];
             m1 += i * histgram[i];
         }
@@ -116,7 +116,7 @@ img_t *binarize_otsu(img_t *src)
     }
 
     for (int i = 0; i < n_pix; i++) {
-        dst->data[i] = (dst->data[i] < threshold) ? 0 : 255;
+        dst->data[i] = (dst->data[i] < threshold) ? 0 : UINT8_MAX;
     }
 
     return dst;

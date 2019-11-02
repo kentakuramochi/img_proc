@@ -1,25 +1,27 @@
 #include "pnm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
 
-#define NORMALIZE_UINT8(value, max) ((value) * 255 / (max))
+#define NORMALIZE_UINT8(value, max) ((value) * UINT8_MAX / (max))
 
 static char get_next_char(FILE *fp)
 {
     char c;
-    int is_comment = 0;
+    bool is_comment = false;
 
     while ((c = getc(fp)) != EOF) {
-        if (is_comment == 1) {
+        if (is_comment) {
             if (c == '\n' || c == '\r') {
-                is_comment = 0;
+                is_comment = false;
             }
             continue;
         }
 
         if (c == '#') {
-            is_comment = 1;
+            is_comment = true;
             continue;
         }
 
@@ -229,24 +231,14 @@ img_t *read_pnm(const char *src)
     COLORSPACE colorspace;
 
     switch (n_magic) {  
-        case 1:
-            colorspace = COLORSPACE_GRAY;
-            break;
-        case 2:
-            colorspace = COLORSPACE_GRAY;
-            break;
-        case 3:
-            colorspace = COLORSPACE_RGB;
-            break;
-        case 4:
-            colorspace = COLORSPACE_GRAY;
-            break;
-        case 5:
-            colorspace = COLORSPACE_GRAY;
-            break;
-        case 6:
-            colorspace = COLORSPACE_RGB;
-            break;
+        // ASCII format
+        case 1: colorspace = COLORSPACE_GRAY; break;
+        case 2: colorspace = COLORSPACE_GRAY; break;
+        case 3: colorspace = COLORSPACE_RGB;  break;
+        // binary format
+        case 4: colorspace = COLORSPACE_GRAY; break;
+        case 5: colorspace = COLORSPACE_GRAY; break;
+        case 6: colorspace = COLORSPACE_RGB;  break;
         default:
             fclose(fp);
             return NULL;
@@ -268,7 +260,7 @@ img_t *read_pnm(const char *src)
     } else {
         max = get_next_int(fp);
 
-        if ((max < 1) || (max > 255)) {
+        if ((max < 1) || (max > UINT8_MAX)) {
             fclose(fp);
             return NULL;
         }
@@ -364,7 +356,7 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
         return RETURN_FAILURE;
     }
 
-    // convert color/format enum to int 2/3/5/6
+    // convert img format to magic number 2/3/5/6
     uint8_t n_magic = ((int)img->colorspace + 2) + (int)format;
 
     if ((n_magic < 1) || (n_magic > 6)) {
@@ -381,7 +373,7 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
     fprintf(fp, "%u %u\n", img->width, img->height);
 
     if ((n_magic != 1) && (n_magic != 4)) {
-        fprintf(fp, "%u\n", 255);
+        fprintf(fp, "%u\n", UINT8_MAX);
     }
 
     if (n_magic <= 3) {

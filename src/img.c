@@ -1,4 +1,5 @@
 #include "img.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,12 +16,8 @@ img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
     img->height = height;
 
     switch (colorspace) {
-        case COLORSPACE_RGB:
-            img->channel = 3;
-            break;
-        case COLORSPACE_GRAY:
-            img->channel = 1;
-            break;
+        case COLORSPACE_RGB:  img->channel = 3; break;
+        case COLORSPACE_GRAY: img->channel = 1; break;
         default:
             free(img);
             img = NULL;
