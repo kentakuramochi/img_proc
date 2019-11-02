@@ -5,6 +5,11 @@
 #include <float.h>
 #include <math.h>
 
+typedef enum {
+    KERNEL_MAX,
+    KERNEL_AVG
+} KERNEL_TYPE;
+
 const double M_PI = 3.14159265358979;
 
 // conversion formula by ITU-R BT.601
@@ -149,7 +154,35 @@ img_t *quantize(img_t *src, uint8_t level)
     return dst;
 }
 
-img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+static uint8_t kernel_max(uint8_t **p_ch, int x, int y, int kw, int kh)
+{
+    int max = 0;
+
+    for (int i = 0; i < kh; i++) {
+        for (int j = 0; j < kw; j++) {
+            max = (p_ch[y + i][x + j] > max) ? p_ch[y + i][x + j] : max;
+        }
+    }
+
+    return max;
+}
+
+static uint8_t kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
+{
+    float k_1 = 1.0 / (kw * kh);
+
+    int avg = 0;
+
+    for (int i = 0; i < kh; i++) {
+        for (int j = 0; j < kw; j++) {
+            avg += p_ch[y + i][x + j];
+        }
+    }
+
+    return (uint8_t)(avg *= k_1);
+}
+
+static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_TYPE type)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
 
@@ -157,25 +190,26 @@ img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
         return NULL;
     }
 
-    float k_1 = 1.0 / (kernel_w * kernel_h);
+    uint8_t (*kernel)(uint8_t **, int, int, int, int);
+
+    switch (type) {
+        case KERNEL_MAX: kernel = kernel_max; break;
+        case KERNEL_AVG: kernel = kernel_avg; break;
+        default:
+            img_free(dst);
+            return NULL;
+            break;
+    }
 
     for (int c = 0; c < dst->channel; c++) {
         for (int y = 0; y < dst->height; y += kernel_h) {
             for (int x = 0; x < dst->width; x += kernel_w) {
 
-                int avg = 0;
+                uint8_t pooled = kernel(src->ch[c], x, y, kernel_w, kernel_h);
 
                 for (int i = 0; i < kernel_h; i++) {
                     for (int j = 0; j < kernel_w; j++) {
-                        avg += src->ch[c][y + i][x + j];
-                    }
-                }
-
-                avg *= k_1;
-
-                for (int i = 0; i < kernel_h; i++) {
-                    for (int j = 0; j < kernel_w; j++) {
-                        dst->ch[c][y + i][x + j] = avg;
+                        dst->ch[c][y + i][x + j] = pooled;
                     }
                 }
             }
@@ -185,38 +219,14 @@ img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
     return dst;
 }
 
+img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+{
+    return pooling(src, kernel_w, kernel_h, 1);
+}
+
 img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
-
-    if (dst == NULL) {
-        return NULL;
-    }
-
-    for (int c = 0; c < dst->channel; c++) {
-        for (int y = 0; y < dst->height; y += kernel_h) {
-            for (int x = 0; x < dst->width; x += kernel_w) {
-
-                int max = 0;
-
-                for (int i = 0; i < kernel_h; i++) {
-                    for (int j = 0; j < kernel_w; j++) {
-                        if (max < src->ch[c][y + i][x + j]) {
-                            max = src->ch[c][y + i][x + j];
-                        }
-                    }
-                }
-
-                for (int i = 0; i < kernel_h; i++) {
-                    for (int j = 0; j < kernel_w; j++) {
-                        dst->ch[c][y + i][x + j] = max;
-                    }
-                }
-            }
-        }
-    }
-
-    return dst;
+    return pooling(src, kernel_w, kernel_h, 0);
 }
 
 img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
