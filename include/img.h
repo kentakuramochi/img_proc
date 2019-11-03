@@ -4,11 +4,6 @@
 #include <stdint.h>
 
 typedef enum {
-    RETURN_SUCCESS = 0,
-    RETURN_FAILURE
-} RETURN;
-
-typedef enum {
     COLORSPACE_GRAY,
     COLORSPACE_RGB
 } COLORSPACE;

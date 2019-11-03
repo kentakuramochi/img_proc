@@ -121,7 +121,7 @@ int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
         printf("%s", usage);
-        return RETURN_FAILURE;
+        return 1;
     }
 
     if (argc == 3) {
@@ -129,11 +129,11 @@ int verify_args(int argc, char *argv[])
             fmt = PNM_FORMAT_BINARY;
         } else {
             printf("error: invalid option \"%s\"\n", argv[2]);
-            return RETURN_FAILURE;
+            return 1;
         }
     }
 
-    return RETURN_SUCCESS;
+    return 0;
 }
 
 int main(int argc, char *argv[])
