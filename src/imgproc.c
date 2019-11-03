@@ -5,25 +5,24 @@
 #include <float.h>
 #include <math.h>
 
+#define M_PI 3.14159265358979
+
 typedef enum {
     KERNEL_MAX,
     KERNEL_AVG
 } KERNEL_TYPE;
-
-const double M_PI = 3.14159265358979;
 
 // conversion formula by ITU-R BT.601
 #define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
 
 img_t *rgb_to_gray(img_t *src)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
+    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
         return NULL;
     }
 
     img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-
-    if (dst == NULL) {
+    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
         return NULL;
     }
 
@@ -38,21 +37,18 @@ img_t *rgb_to_gray(img_t *src)
 
 img_t *binarize(img_t *src, uint8_t threshold)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
+    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
         return NULL;
     }
 
     img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-
-    if (dst == NULL) {
+    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
         return NULL;
     }
 
-    uint8_t gray;
-
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+            uint8_t gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
 
             dst->row[y][x] = (gray < threshold) ? 0 : UINT8_MAX;
         }
@@ -63,13 +59,12 @@ img_t *binarize(img_t *src, uint8_t threshold)
 
 img_t *binarize_otsu(img_t *src)
 {
-    if (src->colorspace != COLORSPACE_RGB) {
+    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
         return NULL;
     }
 
     img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-
-    if (dst == NULL) {
+    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
         return NULL;
     }
 
@@ -77,12 +72,9 @@ img_t *binarize_otsu(img_t *src)
 
     int histgram[256] = { 0 };
 
-    uint8_t gray;
-
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
-
+            uint8_t gray   = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
             dst->row[y][x] = gray;
 
             histgram[gray]++;
@@ -130,7 +122,6 @@ img_t *binarize_otsu(img_t *src)
 img_t *quantize(img_t *src, uint8_t level)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
-
     if (dst == NULL) {
         return NULL;
     }
@@ -185,7 +176,6 @@ static uint8_t kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
 static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_TYPE type)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
-
     if (dst == NULL) {
         return NULL;
     }
@@ -204,7 +194,6 @@ static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_T
     for (int c = 0; c < dst->channel; c++) {
         for (int y = 0; y < dst->height; y += kernel_h) {
             for (int x = 0; x < dst->width; x += kernel_w) {
-
                 uint8_t pooled = kernel(src->ch[c], x, y, kernel_w, kernel_h);
 
                 for (int i = 0; i < kernel_h; i++) {
@@ -221,18 +210,17 @@ static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_T
 
 img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
-    return pooling(src, kernel_w, kernel_h, 1);
+    return pooling(src, kernel_w, kernel_h, KERNEL_AVG);
 }
 
 img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
-    return pooling(src, kernel_w, kernel_h, 0);
+    return pooling(src, kernel_w, kernel_h, KERNEL_MAX);
 }
 
 img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
-
     if (dst == NULL) {
         return NULL;
     }
@@ -298,7 +286,6 @@ static int cmp_ascend(const void *a, const void *b)
 img_t *median_filter(img_t *src, uint32_t kernel_size)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
-
     if (dst == NULL) {
         return NULL;
     }
