@@ -23,5 +23,6 @@ img_t *maxmin_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 
 img_t *diff_filter(img_t *src, bool is_horizontal);
 img_t *sobel_filter(img_t *src, bool is_horizontal);
+img_t *prewitt_filter(img_t *src, bool is_horizontal);
 
 #endif // IMGPROC_H

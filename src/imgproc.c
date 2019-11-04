@@ -489,3 +489,42 @@ img_t *sobel_filter(img_t *src, bool is_horizontal)
 
     return filtering(src, kernel, 3, 3);
 }
+
+img_t *prewitt_filter(img_t *src, bool is_horizontal)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[3 * 3] = { 0 };
+    if (is_horizontal) {
+        // horizontal
+        // -1   0   1
+        // -1   0   1
+        // -1   0   1
+        kernel[0] = -1;
+        kernel[3] = -1;
+        kernel[6] = -1;
+        kernel[2] =  1;
+        kernel[5] =  1;
+        kernel[8] =  1;
+    } else {
+        // vertical
+        // -1  -1  -1
+        //  0   0   0
+        //  1   1   1
+        kernel[0] = -1;
+        kernel[1] = -1;
+        kernel[2] = -1;
+        kernel[6] =  1;
+        kernel[7] =  1;
+        kernel[8] =  1;
+    }
+
+    return filtering(src, kernel, 3, 3);
+}
