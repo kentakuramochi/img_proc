@@ -528,3 +528,23 @@ img_t *prewitt_filter(img_t *src, bool is_horizontal)
 
     return filtering(src, kernel, 3, 3);
 }
+
+img_t *laplacian_filter(img_t *src)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[3 * 3] = {
+         0,  1,  0,
+         1, -4,  1,
+         0,  1,  0
+    };
+
+    return filtering(src, kernel, 3, 3);
+}
