@@ -465,6 +465,17 @@ img_t *sobel_filter(img_t *src, bool is_horizontal)
     double kernel[3 * 3] = { 0 };
     if (is_horizontal) {
         // horizontal
+        //  1   0  -1
+        //  2   0  -2
+        //  1   0  -1
+        kernel[0] = 1;
+        kernel[3] = 2;
+        kernel[6] = 1;
+        kernel[2] = -1;
+        kernel[5] = -2;
+        kernel[8] = -1;
+    } else {
+        // vertical
         //  1   2   1
         //  0   0   0
         // -1  -2  -1
@@ -473,17 +484,6 @@ img_t *sobel_filter(img_t *src, bool is_horizontal)
         kernel[2] = 1;
         kernel[6] = -1;
         kernel[7] = -2;
-        kernel[8] = -1;
-    } else {
-        // vertical
-        //  1   0  -1
-        //  2   0  -2
-        //  1   0  -2
-        kernel[0] = 1;
-        kernel[3] = 2;
-        kernel[6] = 1;
-        kernel[2] = -1;
-        kernel[5] = -2;
         kernel[8] = -1;
     }
 
