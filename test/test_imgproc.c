@@ -117,6 +117,17 @@ void test_averagefilter(img_t *src, const char *dst_file, int kernel_size)
     return;
 }
 
+void test_motionfilter(img_t *src, const char *dst_file, int kernel_size)
+{
+    img_t *dst = motion_filter(src, kernel_size, kernel_size);
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
@@ -161,6 +172,7 @@ int main(int argc, char *argv[])
     test_gaussianfilter(src, "gaussian_3x3.ppm", 3, 1.3);
     test_medianfilter(src, "median_3x3.ppm", 3);
     test_averagefilter(src, "average_3x3.ppm", 3);
+    test_motionfilter(src, "motion_3x3.ppm", 3);
 
     img_free(src);
 

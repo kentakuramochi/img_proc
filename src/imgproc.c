@@ -354,3 +354,20 @@ img_t *average_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 
     return filtering(src, kernel, kernel_w, kernel_h);
 }
+
+img_t *motion_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+{
+    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    // create kernel
+    double kernel[kernel_w * kernel_h];
+
+    for (int i = 0; i < kernel_h; i++) {
+        kernel[i * kernel_w + i] = 1.0 / kernel_w;
+    }
+
+    return filtering(src, kernel, kernel_w, kernel_h);
+}
