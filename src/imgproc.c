@@ -431,20 +431,60 @@ img_t *diff_filter(img_t *src, bool is_horizontal)
     }
 
     double kernel[3 * 3] = { 0 };
+    // using central difference form
     if (is_horizontal) {
-        // horizontal filter
-        //  0,  0,  0
-        // -1,  1,  0
-        //  0,  0,  0
-        kernel[3] = -1;
-        kernel[4] =  1;
+        // horizontal
+        //    0,   0,    0
+        // -1/2,   0,  1/2
+        //    0,   0,    0
+        kernel[3] = -0.5;
+        kernel[4] =  0.5;
     } else {
-        // vertical filter
-        //  0, -1,  0
-        //  0,  1,  0
-        //  0,  0,  0
-        kernel[1] = -1;
-        kernel[4] =  1;
+        // vertical
+        //  0, -1/2, 0
+        //  0,  0,   0
+        //  0,  1/2, 0
+        kernel[1] = -0.5;
+        kernel[4] =  0.5;
+    }
+
+    return filtering(src, kernel, 3, 3);
+}
+
+img_t *sobel_filter(img_t *src, bool is_horizontal)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[3 * 3] = { 0 };
+    if (is_horizontal) {
+        // horizontal
+        //  1   2   1
+        //  0   0   0
+        // -1  -2  -1
+        kernel[0] = 1;
+        kernel[1] = 2;
+        kernel[2] = 1;
+        kernel[6] = -1;
+        kernel[7] = -2;
+        kernel[8] = -1;
+    } else {
+        // vertical
+        //  1   0  -1
+        //  2   0  -2
+        //  1   0  -2
+        kernel[0] = 1;
+        kernel[3] = 2;
+        kernel[6] = 1;
+        kernel[2] = -1;
+        kernel[5] = -2;
+        kernel[8] = -1;
     }
 
     return filtering(src, kernel, 3, 3);

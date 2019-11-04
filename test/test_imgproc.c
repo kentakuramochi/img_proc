@@ -174,6 +174,29 @@ void test_difffilter(img_t *src, const char *dst_file, bool is_horizontal)
     return;
 }
 
+void test_sobelfilter(img_t *src, const char *dst_file, bool is_horizontal)
+{
+    img_t *gray;
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        gray = rgb_to_gray(src);
+    } else {
+        gray = src;
+    }
+
+    img_t *dst = sobel_filter(gray, is_horizontal);
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        img_free(gray);
+    }
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
@@ -222,6 +245,8 @@ int main(int argc, char *argv[])
     test_maxminfilter(src, "maxmin_3x3.pgm", 3);
     test_difffilter(src, "diff_h.pgm", true);
     test_difffilter(src, "diff_v.pgm", false);
+    test_sobelfilter(src, "sobel_h.pgm", true);
+    test_sobelfilter(src, "sobel_v.pgm", false);
 
     img_free(src);
 
