@@ -86,7 +86,7 @@ void test_maxpool(img_t *src, const char *dst_file, int kw, int kh)
 
 void test_gaussianfilter(img_t *src, const char *dst_file, int kernel_size, double stddev)
 {
-    img_t *dst = gaussian_filter(src, kernel_size, stddev);
+    img_t *dst = gaussian_filter(src, kernel_size, kernel_size, stddev);
 
     write_pnm(dst, dst_file, fmt);
 
@@ -97,7 +97,7 @@ void test_gaussianfilter(img_t *src, const char *dst_file, int kernel_size, doub
 
 void test_medianfilter(img_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *dst = median_filter(src, kernel_size);
+    img_t *dst = median_filter(src, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 
@@ -108,7 +108,7 @@ void test_medianfilter(img_t *src, const char *dst_file, int kernel_size)
 
 void test_averagefilter(img_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *dst = average_filter(src, kernel_size);
+    img_t *dst = average_filter(src, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 

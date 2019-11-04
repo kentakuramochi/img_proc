@@ -145,32 +145,26 @@ img_t *quantize(img_t *src, uint8_t level)
     return dst;
 }
 
-static uint8_t kernel_max(uint8_t **p_ch, int x, int y, int kw, int kh)
+static uint8_t pool_kernel_max(uint8_t **p_ch, int x, int y, int kw, int kh)
 {
     int max = 0;
-
     for (int i = 0; i < kh; i++) {
         for (int j = 0; j < kw; j++) {
             max = (p_ch[y + i][x + j] > max) ? p_ch[y + i][x + j] : max;
         }
     }
-
     return max;
 }
 
-static uint8_t kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
+static uint8_t pool_kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
 {
-    float k_1 = 1.0 / (kw * kh);
-
     int avg = 0;
-
     for (int i = 0; i < kh; i++) {
         for (int j = 0; j < kw; j++) {
             avg += p_ch[y + i][x + j];
         }
     }
-
-    return (uint8_t)(avg *= k_1);
+    return (uint8_t)(avg /= kw * kh);
 }
 
 static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_TYPE type)
@@ -183,8 +177,8 @@ static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_T
     uint8_t (*kernel)(uint8_t **, int, int, int, int);
 
     switch (type) {
-        case KERNEL_MAX: kernel = kernel_max; break;
-        case KERNEL_AVG: kernel = kernel_avg; break;
+        case KERNEL_MAX: kernel = pool_kernel_max; break;
+        case KERNEL_AVG: kernel = pool_kernel_avg; break;
         default:
             img_free(dst);
             return NULL;
@@ -218,59 +212,41 @@ img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
     return pooling(src, kernel_w, kernel_h, KERNEL_MAX);
 }
 
-img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
+static uint8_t filter(uint8_t **p_ch, int x, int y, int w, int h, double *kernel, int kw, int kh)
+{
+    int ofs_x = kw / 2;
+    int ofs_y = kh / 2;
+
+    double sum = 0;
+
+    int ky = y - ofs_y;
+    for (int i = 0; i < kh; i++) {
+        int kx = x - ofs_x;
+        for (int j = 0; j < kh; j++) {
+            if ((kx < 0) || (kx >= w) || (ky < 0) || (ky >= h)) {
+                continue;
+            }
+            sum += p_ch[ky][kx] * kernel[i * kw + j];
+            kx++;
+        }
+        ky++;
+    }
+
+    return (uint8_t)sum;
+}
+
+static img_t *filtering(img_t *src, double *kernel, uint32_t kernel_w, uint32_t kernel_h)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
     if (dst == NULL) {
         return NULL;
     }
 
-    double kernel[kernel_size * kernel_size];
-
-    double coef = 1 / (sqrt(2 * M_PI) * stddev);
-    double sum  = 0;
-
-    int ofs_y = -(int)kernel_size / 2;
-    int ofs_x = -(int)kernel_size / 2;
-
-    int ky, kx;
-
-    ky = ofs_y;
-    for (int y = 0; y < kernel_size; y++) {
-        kx = ofs_x;
-        for (int x = 0; x < kernel_size; x++) {
-            kernel[y * kernel_size + x] = coef * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
-            sum += kernel[y * kernel_size + x];
-            kx++;
-        }
-        ky++;
-    }
-
-    for (int y = 0; y < kernel_size; y++) {
-        for (int x = 0; x < kernel_size; x++) {
-            kernel[y * kernel_size + x] /= sum;
-        }
-    }
-
     for (int c = 0; c < dst->channel; c++) {
         for (int y = 0; y < dst->height; y ++) {
             for (int x = 0; x < dst->width; x ++) {
-                double filtered = 0;
-                ky = y + ofs_y;
-
-                for (int i = 0; i < kernel_size; i++) {
-                    kx = x + ofs_x;
-                    for (int j = 0; j < kernel_size; j++) {
-                        if ((ky >= 0) && (ky < src->height) &&
-                            (kx >= 0) && (kx < src->width)) {
-                            filtered += src->ch[c][ky][kx] * kernel[i * kernel_size + j];
-                        }
-                        kx++;
-                    }
-                    ky++;
-                }
-
-                dst->ch[c][y][x] = (uint8_t)filtered;
+                dst->ch[c][y][x] = filter(src->ch[c], x, y, src->width, src->height,
+                                          kernel, kernel_w, kernel_h);
             }
         }
     }
@@ -278,43 +254,70 @@ img_t *gaussian_filter(img_t *src, uint32_t kernel_size, double stddev)
     return dst;
 }
 
+img_t *gaussian_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h, double stddev)
+{
+    // create gaussian kernel
+    double kernel[kernel_w * kernel_h];
+
+    double c   = 1 / (sqrt(2 * M_PI) * stddev);
+    double sum = 0;
+
+    int ofs_x = kernel_w / 2;
+    int ofs_y = kernel_h / 2;
+
+    int ky = ofs_y;
+    for (int y = 0; y < kernel_h; y++) {
+        int kx = ofs_x;
+        for (int x = 0; x < kernel_w; x++) {
+            kernel[y * kernel_w + x] = c * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
+            sum += kernel[y * kernel_w + x];
+            kx++;
+        }
+        ky++;
+    }
+
+    c = 1 / sum;
+    for (int i = 0; i < (kernel_w * kernel_h); i++) {
+        kernel[i] *= c;
+    }
+
+    return filtering(src, kernel, kernel_w, kernel_h);
+}
+
+// compare function for ascending order
 static int cmp_ascend(const void *a, const void *b)
 {
     return *(uint8_t*)a - *(uint8_t*)b;
 }
 
-img_t *median_filter(img_t *src, uint32_t kernel_size)
+img_t *median_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
     if (dst == NULL) {
         return NULL;
     }
 
-    const int ksize = kernel_size * kernel_size;
-
+    const int ksize   = kernel_w * kernel_h;
     const int mid_idx = (ksize - 1) / 2;
 
+    int ofs_x = -(kernel_w / 2);
+    int ofs_y = -(kernel_h / 2);
+
     uint8_t kernel[ksize];
-
-    int ofs_y = -(int)kernel_size / 2;
-    int ofs_x = -(int)kernel_size / 2;
-
     int ky, kx;
-
     for (int c = 0; c < dst->channel; c++) {
         for (int y = 0; y < dst->height; y ++) {
             for (int x = 0; x < dst->width; x ++) {
-                uint8_t median = 0;
-                ky = y + ofs_y;
 
-                for (int i = 0; i < kernel_size; i++) {
+                ky = y + ofs_y;
+                for (int i = 0; i < kernel_h; i++) {
                     kx = x + ofs_x;
-                    for (int j = 0; j < kernel_size; j++) {
+                    for (int j = 0; j < kernel_h; j++) {
                         if ((ky >= 0) && (ky < src->height) &&
                             (kx >= 0) && (kx < src->width)) {
-                            kernel[i * kernel_size + j] = src->ch[c][ky][kx];
+                            kernel[i * kernel_w + j] = src->ch[c][ky][kx];
                         } else {
-                            kernel[i * kernel_size + j] = 0;
+                            kernel[i * kernel_w + j] = 0;
                         }
                         kx++;
                     }
@@ -323,13 +326,8 @@ img_t *median_filter(img_t *src, uint32_t kernel_size)
 
                 qsort(kernel, ksize, 1, cmp_ascend);
 
-                if (kernel_size % 2 == 1) {
-                    median = kernel[mid_idx];
-                } else {
-                    median = (kernel[mid_idx] + kernel[mid_idx + 1]) / 2;
-                }
-
-                dst->ch[c][y][x] = median;
+                dst->ch[c][y][x] = (ksize % 2 == 1) ? kernel[mid_idx] :
+                    (kernel[mid_idx] + kernel[mid_idx + 1]) / 2;
             }
         }
     }
@@ -337,49 +335,22 @@ img_t *median_filter(img_t *src, uint32_t kernel_size)
     return dst;
 }
 
-img_t *average_filter(img_t *src, uint32_t kernel_size)
+img_t *average_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
     if (dst == NULL) {
         return NULL;
     }
 
-    int ksize = kernel_size * kernel_size;
+    // create kernel
+    const int ksize = kernel_w * kernel_h;
     double kernel[ksize];
 
-    int ofs_y = -(int)kernel_size / 2;
-    int ofs_x = -(int)kernel_size / 2;
-
-    int ky, kx;
-
-    for (int y = 0; y < kernel_size; y++) {
-        for (int x = 0; x < kernel_size; x++) {
-            kernel[y * kernel_size + x] = 1.0 / ksize;
+    for (int y = 0; y < kernel_h; y++) {
+        for (int x = 0; x < kernel_w; x++) {
+            kernel[y * kernel_w + x] = 1.0 / ksize;
         }
     }
 
-    for (int c = 0; c < dst->channel; c++) {
-        for (int y = 0; y < dst->height; y ++) {
-            for (int x = 0; x < dst->width; x ++) {
-                double filtered = 0;
-                ky = y + ofs_y;
-
-                for (int i = 0; i < kernel_size; i++) {
-                    kx = x + ofs_x;
-                    for (int j = 0; j < kernel_size; j++) {
-                        if ((ky >= 0) && (ky < src->height) &&
-                            (kx >= 0) && (kx < src->width)) {
-                            filtered += src->ch[c][ky][kx] * kernel[i * kernel_size + j];
-                        }
-                        kx++;
-                    }
-                    ky++;
-                }
-
-                dst->ch[c][y][x] = (uint8_t)filtered;
-            }
-        }
-    }
-
-    return dst;
+    return filtering(src, kernel, kernel_w, kernel_h);
 }
