@@ -418,3 +418,34 @@ img_t *maxmin_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 
     return dst;
 }
+
+img_t *diff_filter(img_t *src, bool is_horizontal)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[3 * 3] = { 0 };
+    if (is_horizontal) {
+        // horizontal filter
+        //  0,  0,  0
+        // -1,  1,  0
+        //  0,  0,  0
+        kernel[3] = -1;
+        kernel[4] =  1;
+    } else {
+        // vertical filter
+        //  0, -1,  0
+        //  0,  1,  0
+        //  0,  0,  0
+        kernel[1] = -1;
+        kernel[4] =  1;
+    }
+
+    return filtering(src, kernel, 3, 3);
+}

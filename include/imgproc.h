@@ -3,6 +3,8 @@
 
 #include "img.h"
 
+#include <stdbool.h>
+
 img_t *rgb_to_gray(img_t *src);
 
 img_t *binarize(img_t *src, uint8_t threshold);
@@ -18,5 +20,7 @@ img_t *median_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 img_t *average_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 img_t *motion_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 img_t *maxmin_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
+
+img_t *diff_filter(img_t *src, bool is_horizontal);
 
 #endif // IMGPROC_H
