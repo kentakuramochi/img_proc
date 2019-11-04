@@ -128,6 +128,29 @@ void test_motionfilter(img_t *src, const char *dst_file, int kernel_size)
     return;
 }
 
+void test_maxminfilter(img_t *src, const char *dst_file, int kernel_size)
+{
+    img_t *gray;
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        gray = rgb_to_gray(src);
+    } else {
+        gray = src;
+    }
+
+    img_t *dst = maxmin_filter(gray, kernel_size, kernel_size);
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        img_free(gray);
+    }
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
@@ -173,6 +196,7 @@ int main(int argc, char *argv[])
     test_medianfilter(src, "median_3x3.ppm", 3);
     test_averagefilter(src, "average_3x3.ppm", 3);
     test_motionfilter(src, "motion_3x3.ppm", 3);
+    test_maxminfilter(src, "maxmin_3x3.pgm", 3);
 
     img_free(src);
 

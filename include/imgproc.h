@@ -17,5 +17,6 @@ img_t *gaussian_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h, double 
 img_t *median_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 img_t *average_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 img_t *motion_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
+img_t *maxmin_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h);
 
 #endif // IMGPROC_H

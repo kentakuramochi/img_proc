@@ -371,3 +371,50 @@ img_t *motion_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 
     return filtering(src, kernel, kernel_w, kernel_h);
 }
+
+img_t *maxmin_filter(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    int ofs_x = -(kernel_w / 2);
+    int ofs_y = -(kernel_h / 2);
+
+    int ky, kx;
+    for (int c = 0; c < dst->channel; c++) {
+        for (int y = 0; y < dst->height; y ++) {
+            for (int x = 0; x < dst->width; x ++) {
+
+                uint8_t max = 0;
+                uint8_t min = UINT8_MAX;
+                ky = y + ofs_y;
+                for (int i = 0; i < kernel_h; i++) {
+                    kx = x + ofs_x;
+                    for (int j = 0; j < kernel_h; j++) {
+                        if ((ky >= 0) && (ky < src->height) &&
+                            (kx >= 0) && (kx < src->width)) {
+                            if (max < src->ch[c][ky][kx]) {
+                                max = src->ch[c][ky][kx];
+                            }
+                            if (min > src->ch[c][ky][kx]) {
+                                min = src->ch[c][ky][kx];
+                            }
+                        }
+                        kx++;
+                    }
+                    ky++;
+                }
+
+                dst->ch[c][y][x] = max - min;
+            }
+        }
+    }
+
+    return dst;
+}
