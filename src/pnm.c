@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <stdbool.h>
 
 #define NORMALIZE_UINT8(value, max) ((value) * UINT8_MAX / (max))
 
@@ -70,14 +69,13 @@ static int parse_int(const char *str)
 
 static int get_next_int(FILE *fp)
 {
-    char token[4];
-
+    char token[3 + 1];
     get_token(fp, token, sizeof(token));
 
     return parse_int(token);
 }
 
-static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
+static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     int tmp;
 
@@ -85,7 +83,7 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return RETURN_FAILURE;
+                    return false;
                 }
                 img->row[y][x] = tmp;
             }
@@ -94,7 +92,7 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return RETURN_FAILURE;
+                    return false;
                 }
                 img->row[y][x] = NORMALIZE_UINT8(tmp, max);
             }
@@ -103,30 +101,27 @@ static int read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return RETURN_FAILURE;
+                    return false;
                 }
-
                 img->ch[0][y][x] = NORMALIZE_UINT8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return RETURN_FAILURE;
+                    return false;
                 }
-
                 img->ch[1][y][x] = NORMALIZE_UINT8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
-                    return RETURN_FAILURE;
+                    return false;
                 }
-
                 img->ch[2][y][x] = NORMALIZE_UINT8(tmp, max);
             }
         }
     }
 
-    return RETURN_SUCCESS;
+    return true;
 }
 
-static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
+static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     uint8_t *row;
     uint8_t *item;
@@ -136,7 +131,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
         stride = sizeof(uint8_t) * ((img->width + 7) / 8);
 
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return RETURN_FAILURE;
+            return false;
         }
 
         int pos   = 0;
@@ -148,7 +143,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return RETURN_FAILURE;
+                return false;
             }
 
             for (int x = 0; x < img->width; x++) {
@@ -166,13 +161,13 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
         stride = sizeof(uint8_t) * img->width;
 
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return RETURN_FAILURE;
+            return false;
         }
 
         for (int y = 0; y < img->height; y++) {
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return RETURN_FAILURE;
+                return false;
             }
 
             item = row;
@@ -185,13 +180,13 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
         stride = (sizeof(uint8_t) * 3) * img->width;
 
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
-            return RETURN_FAILURE;
+            return false;
         }
 
         for (int y = 0; y < img->height; y++) {
             if (fread(row, stride, 1, fp) != 1) {
                 free(row);
-                return RETURN_FAILURE;
+                return false;
             }
 
             item = row;
@@ -206,7 +201,7 @@ static int read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 
     free(row);
 
-    return RETURN_SUCCESS;
+    return true;
 }
 
 img_t *read_pnm(const char *src)
@@ -218,7 +213,6 @@ img_t *read_pnm(const char *src)
     }
 
     char buf_magic[2 + 1];
-
     get_token(fp, buf_magic, sizeof(buf_magic));
 
     uint8_t n_magic = buf_magic[1] - '0';
@@ -269,11 +263,11 @@ img_t *read_pnm(const char *src)
     img_t *img = img_allocate(width, height, colorspace);
 
     if (n_magic <= 3) {
-        if (read_pnm_ascii(fp, img, max, n_magic) != RETURN_SUCCESS) {
+        if (!read_pnm_ascii(fp, img, max, n_magic)) {
             img = NULL;
         }
     } else {
-        if (read_pnm_binary(fp, img, max, n_magic) != RETURN_SUCCESS) {
+        if (!read_pnm_binary(fp, img, max, n_magic)) {
             img = NULL;
         }
     }
@@ -283,14 +277,13 @@ img_t *read_pnm(const char *src)
     return img;
 }
 
-static int write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
+static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
 {
     if ((n_magic == 1) || (n_magic == 2)) {
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
                 fprintf(fp, "%u ", img->row[y][x]);
             }
-
             fseek(fp, -1, SEEK_CUR);
             fputc('\n', fp);
         }
@@ -299,16 +292,15 @@ static int write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
             for (int x = 0; x < img->width; x++) {
                 fprintf(fp, "%u %u %u ", img->ch[0][y][x], img->ch[1][y][x], img->ch[2][y][x]);
             }
-
             fseek(fp, -1, SEEK_CUR);
             fputc('\n', fp);
         }
     }
 
-    return RETURN_SUCCESS;
+    return true;
 }
 
-static int write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
+static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
 {
     if (n_magic == 4) {
         int     shift;
@@ -347,26 +339,25 @@ static int write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
         }
     }
 
-    return RETURN_SUCCESS;
+    return true;
 }
 
-int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
+bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
 {
     if (img == NULL) {
-        return RETURN_FAILURE;
+        return false;
     }
 
     // convert img format to magic number 2/3/5/6
     uint8_t n_magic = ((int)img->colorspace + 2) + (int)format;
 
     if ((n_magic < 1) || (n_magic > 6)) {
-        return RETURN_FAILURE;
+        return false;
     }
 
     FILE *fp = fopen(dst, "wb");
-
     if (fp == NULL) {
-        return RETURN_FAILURE;
+        return false;
     }
 
     fprintf(fp, "P%d\n", n_magic);
@@ -377,12 +368,18 @@ int write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
     }
 
     if (n_magic <= 3) {
-        write_pnm_ascii(fp, img, n_magic);
+        if (!write_pnm_ascii(fp, img, n_magic)) {
+            fclose(fp);
+            return false;
+        }
     } else {
-        write_pnm_binary(fp, img, n_magic);
+        if (!write_pnm_binary(fp, img, n_magic)) {
+            fclose(fp);
+            return false;
+        }
     }
 
     fclose(fp);
 
-    return RETURN_SUCCESS;
+    return true;
 }
