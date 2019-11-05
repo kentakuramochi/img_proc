@@ -548,3 +548,23 @@ img_t *laplacian_filter(img_t *src)
 
     return filtering(src, kernel, 3, 3);
 }
+
+img_t *emboss_filter(img_t *src)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    double kernel[3 * 3] = {
+        -2, -1,  0,
+        -1,  1,  1,
+         0,  1,  2
+    };
+
+    return filtering(src, kernel, 3, 3);
+}

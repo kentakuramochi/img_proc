@@ -243,6 +243,29 @@ void test_laplacianfilter(img_t *src, const char *dst_file)
     return;
 }
 
+void test_embossfilter(img_t *src, const char *dst_file)
+{
+    img_t *gray;
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        gray = rgb_to_gray(src);
+    } else {
+        gray = src;
+    }
+
+    img_t *dst = emboss_filter(gray);
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        img_free(gray);
+    }
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int verify_args(int argc, char *argv[])
 {
     if ((argc < 2) || (argc > 3)) {
@@ -296,6 +319,7 @@ int main(int argc, char *argv[])
     test_prewittfilter(src, "prewitt_h.pgm", true);
     test_prewittfilter(src, "prewitt_v.pgm", false);
     test_laplacianfilter(src, "laplacian.pgm");
+    test_embossfilter(src, "emboss.pgm");
 
     img_free(src);
 
