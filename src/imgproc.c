@@ -570,3 +570,44 @@ img_t *emboss_filter(img_t *src)
 
     return filtering(src, kernel, 3, 3);
 }
+
+img_t *log_filter(img_t *src, int kernel_w, int kernel_h, double sigma)
+{
+    if (src->colorspace != COLORSPACE_GRAY) {
+        return NULL;
+    }
+
+    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    // create kernel
+    double kernel[kernel_w * kernel_h];
+
+    double sigma_p2 = sigma * sigma;
+
+    double c = 1 / (2 * M_PI * pow(sigma, 6));
+
+    int ofs_x = kernel_w / 2;
+    int ofs_y = kernel_h / 2;
+
+    double sum = 0;
+
+    int ky = -ofs_y;
+    for (int y = 0; y < kernel_h; y++) {
+        int kx = -ofs_x;
+        for (int x = 0; x < kernel_w; x++) {
+            kernel[y * kernel_w + x] = c * (kx * kx + ky * ky - 2 * sigma_p2)  * exp(-(kx * kx  + ky * ky) / (2 * sigma_p2));
+            sum += kernel[y * kernel_w + x];
+            kx++;
+        }
+        ky++;
+    }
+
+    for (int i = 0; i < (kernel_w * kernel_h); i++) {
+        kernel[i] /= sum;
+    }
+
+    return filtering(src, kernel, kernel_w, kernel_h);
+}

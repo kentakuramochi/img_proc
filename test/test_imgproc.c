@@ -285,6 +285,29 @@ int verify_args(int argc, char *argv[])
     return 0;
 }
 
+void test_logfilter(img_t *src, const char *dst_file, int kernel_size, double sigma)
+{
+    img_t *gray;
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        gray = rgb_to_gray(src);
+    } else {
+        gray = src;
+    }
+
+    img_t *dst = log_filter(gray, kernel_size, kernel_size, sigma);
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        img_free(gray);
+    }
+
+    write_pnm(dst, dst_file, fmt);
+
+    img_free(dst);
+
+    return;
+}
+
 int main(int argc, char *argv[])
 {
     if (verify_args(argc, argv)) {
@@ -320,6 +343,7 @@ int main(int argc, char *argv[])
     test_prewittfilter(src, "prewitt_v.pgm", false);
     test_laplacianfilter(src, "laplacian.pgm");
     test_embossfilter(src, "emboss.pgm");
+    test_logfilter(src, "log_5x5.pgm", 5, 3);
 
     img_free(src);
 
