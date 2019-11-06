@@ -28,4 +28,6 @@ img_t *laplacian_filter(img_t *src);
 img_t *emboss_filter(img_t *src);
 img_t *log_filter(img_t *src, int kernel_w, int kernel_h, double sigma);
 
+void get_hist(img_t *src, int histgram[256], int bin);
+
 #endif // IMGPROC_H

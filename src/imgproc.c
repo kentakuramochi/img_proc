@@ -611,3 +611,34 @@ img_t *log_filter(img_t *src, int kernel_w, int kernel_h, double sigma)
 
     return filtering(src, kernel, kernel_w, kernel_h);
 }
+
+
+void get_hist(img_t *src, int histgram[256], int bin)
+{
+    for (int i = 0; i < 256; i++) {
+        histgram[i] = 0;
+    }
+
+    uint8_t level = 256 / bin;
+
+    for (int i = 0; i < (src->width * src->height); i++) {
+        uint8_t val = src->data[i];
+
+        int th = level;
+        for (int j = 0; j <= bin; j++) {
+            if (val < th) {
+                histgram[(th - level)]++;
+                break;
+            }
+            th += level;
+        }
+    }
+
+    int bin_s = 0;
+    for (int i = 1; i < 256; i++) {
+        if (i % level == 0) {
+            bin_s += level;
+        }
+        histgram[i] = histgram[bin_s];
+    }
+}

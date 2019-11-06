@@ -266,25 +266,6 @@ void test_embossfilter(img_t *src, const char *dst_file)
     return;
 }
 
-int verify_args(int argc, char *argv[])
-{
-    if ((argc < 2) || (argc > 3)) {
-        printf("%s", usage);
-        return 1;
-    }
-
-    if (argc == 3) {
-        if (strcmp(argv[2], "--compress") == 0) {
-            fmt = PNM_FORMAT_BINARY;
-        } else {
-            printf("error: invalid option \"%s\"\n", argv[2]);
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
 void test_logfilter(img_t *src, const char *dst_file, int kernel_size, double sigma)
 {
     img_t *gray;
@@ -306,6 +287,47 @@ void test_logfilter(img_t *src, const char *dst_file, int kernel_size, double si
     img_free(dst);
 
     return;
+}
+
+void test_histgram(img_t *src, const char* file)
+{
+    img_t *gray;
+
+    if (src->colorspace != COLORSPACE_GRAY) {
+        gray = rgb_to_gray(src);
+    } else {
+        gray = src;
+    }
+
+    int histgram[256];
+    get_hist(gray, histgram, 8);
+
+    FILE *fp = fopen(file, "w");
+
+    for (int i = 0; i < 256; i++) {
+        fprintf(fp, "[%d]: %d\n", i, histgram[i]);
+    }
+
+    fclose(fp);
+}
+
+int verify_args(int argc, char *argv[])
+{
+    if ((argc < 2) || (argc > 3)) {
+        printf("%s", usage);
+        return 1;
+    }
+
+    if (argc == 3) {
+        if (strcmp(argv[2], "--compress") == 0) {
+            fmt = PNM_FORMAT_BINARY;
+        } else {
+            printf("error: invalid option \"%s\"\n", argv[2]);
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -344,6 +366,7 @@ int main(int argc, char *argv[])
     test_laplacianfilter(src, "laplacian.pgm");
     test_embossfilter(src, "emboss.pgm");
     test_logfilter(src, "log_5x5.pgm", 5, 3);
+    test_histgram(src, "histgram.txt");
 
     img_free(src);
 
