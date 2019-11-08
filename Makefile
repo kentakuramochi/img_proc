@@ -1,7 +1,7 @@
 INCDIR   := include
 SRCDIR   := src
 BUILDDIR := build
-TESTDIR  := test
+SAMPDIR  := sample
 
 CC       := gcc
 CFLAGS   := -Wall -Wextra -Wpedantic -std=c11 -I./$(INCDIR)
@@ -22,8 +22,8 @@ SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(addprefix $(BUILDDIR)/$(TYPE)/,$(SRCS:.c=.o))
 DEPS := $(OBJS:.o=.d)
 
-TESTSRCS := $(wildcard $(TESTDIR)/*.c)
-TESTS    := $(addprefix $(BUILDDIR)/$(TYPE)/,$(TESTSRCS:.c=))
+SAMPSRCS := $(wildcard $(SAMPDIR)/*.c)
+SAMPS    := $(addprefix $(BUILDDIR)/$(TYPE)/,$(SAMPSRCS:.c=))
 
 AR := ar rcs
 RM := rm -rf
@@ -41,10 +41,10 @@ $(BUILDDIR)/$(TYPE)/%.o: %.c
 	@mkdir -p $(BUILDDIR)/$(TYPE)/$(SRCDIR)
 	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
 
-test: $(LIB) $(TESTS)
+test: $(LIB) $(SAMPS)
 
-$(BUILDDIR)/$(TYPE)/$(TESTDIR)/%: $(TESTDIR)/%.c
-	@mkdir -p $(BUILDDIR)/$(TYPE)/$(TESTDIR)
+$(BUILDDIR)/$(TYPE)/$(SAMPDIR)/%: $(SAMPDIR)/%.c
+	@mkdir -p $(BUILDDIR)/$(TYPE)/$(SAMPDIR)
 	$(CC) $(CFLAGS) -L./$(BUILDDIR)/$(TYPE) $< -limgproc $(LIBS) -o $@
 
 clean:
