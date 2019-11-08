@@ -3,7 +3,10 @@
 #include <stddef.h>
 
 // conversion formula by ITU-R BT.601
-#define BT601(r, g, b) (0.299 * (r) + 0.587 * (g) + 0.114 * (b))
+static inline rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
+{
+    return (0.299 * r + 0.587 * g + 0.114 * b);
+}
 
 img_t *rgb_to_gray(img_t *src)
 {
@@ -18,7 +21,7 @@ img_t *rgb_to_gray(img_t *src)
 
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            dst->row[y][x] = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+            dst->row[y][x] = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
         }
     }
 
@@ -38,7 +41,7 @@ img_t *binarize(img_t *src, uint8_t threshold)
 
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            uint8_t gray = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+            uint8_t gray = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
 
             dst->row[y][x] = (gray < threshold) ? 0 : UINT8_MAX;
         }
@@ -64,7 +67,7 @@ img_t *binarize_otsu(img_t *src)
 
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            uint8_t gray   = BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+            uint8_t gray   = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
             dst->row[y][x] = gray;
 
             histgram[gray]++;

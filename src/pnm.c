@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define NORMALIZE_UINT8(value, max) ((value) * UINT8_MAX / (max))
+static inline uint8_t norm_uint8(uint8_t value, uint8_t max)
+{
+    return (value * UINT8_MAX / max);
+}
 
 static char get_next_char(FILE *fp)
 {
@@ -94,7 +97,7 @@ static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->row[y][x] = NORMALIZE_UINT8(tmp, max);
+                img->row[y][x] = norm_uint8(tmp, max);
             }
         }
     } else {
@@ -103,17 +106,17 @@ static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->ch[0][y][x] = NORMALIZE_UINT8(tmp, max);
+                img->ch[0][y][x] = norm_uint8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->ch[1][y][x] = NORMALIZE_UINT8(tmp, max);
+                img->ch[1][y][x] = norm_uint8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->ch[2][y][x] = NORMALIZE_UINT8(tmp, max);
+                img->ch[2][y][x] = norm_uint8(tmp, max);
             }
         }
     }
@@ -173,7 +176,7 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
             item = row;
 
             for (int x = 0; x < img->width; x++) {
-                img->row[y][x] = NORMALIZE_UINT8(*(item++), max);
+                img->row[y][x] = norm_uint8(*(item++), max);
             }
         }
     } else {
@@ -192,9 +195,9 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
             item = row;
 
             for (int x = 0; x < img->width; x++) {
-                img->ch[0][y][x] = NORMALIZE_UINT8(*(item++), max);
-                img->ch[1][y][x] = NORMALIZE_UINT8(*(item++), max);
-                img->ch[2][y][x] = NORMALIZE_UINT8(*(item++), max);
+                img->ch[0][y][x] = norm_uint8(*(item++), max);
+                img->ch[1][y][x] = norm_uint8(*(item++), max);
+                img->ch[2][y][x] = norm_uint8(*(item++), max);
             }
         }
     }
