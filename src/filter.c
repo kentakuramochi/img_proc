@@ -1,10 +1,36 @@
 #include "filter.h"
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
 #include <float.h>
 
 #define M_PI 3.14159265358979
+
+static uint8_t filter(uint8_t **p_ch, int x, int y, int w, int h, double *kernel, int kw, int kh)
+{
+    int ofs_x = kw / 2;
+    int ofs_y = kh / 2;
+
+    double sum = 0;
+
+    int ky = y - ofs_y;
+    for (int i = 0; i < kh; i++) {
+        int kx = x - ofs_x;
+        for (int j = 0; j < kw; j++) {
+            if ((kx >= 0) && (kx < w) && (ky >= 0) && (ky < h)) {
+                sum += p_ch[ky][kx] * kernel[i * kw + j];
+            }
+            kx++;
+        }
+        ky++;
+    }
+
+    sum = fmax(sum, 0);
+    sum = fmin(sum, UINT8_MAX);
+
+    return (uint8_t)sum;
+}
 
 static img_t *filtering(img_t *src, double *kernel, uint32_t kernel_w, uint32_t kernel_h)
 {

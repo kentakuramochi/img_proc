@@ -1,6 +1,7 @@
 #include "pool.h"
 
 #include <stddef.h>
+#include <math.h>
 
 typedef enum {
     KERNEL_MAX,
@@ -72,29 +73,4 @@ img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
 {
     return pooling(src, kernel_w, kernel_h, KERNEL_MAX);
-}
-
-static uint8_t filter(uint8_t **p_ch, int x, int y, int w, int h, double *kernel, int kw, int kh)
-{
-    int ofs_x = kw / 2;
-    int ofs_y = kh / 2;
-
-    double sum = 0;
-
-    int ky = y - ofs_y;
-    for (int i = 0; i < kh; i++) {
-        int kx = x - ofs_x;
-        for (int j = 0; j < kw; j++) {
-            if ((kx >= 0) && (kx < w) && (ky >= 0) && (ky < h)) {
-                sum += p_ch[ky][kx] * kernel[i * kw + j];
-            }
-            kx++;
-        }
-        ky++;
-    }
-
-    sum = fmax(sum, 0);
-    sum = fmin(sum, UINT8_MAX);
-
-    return (uint8_t)sum;
 }
