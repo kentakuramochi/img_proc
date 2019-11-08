@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "convert.h"
 #include "filter.h"
 #include "pnm.h"
 
@@ -251,8 +252,20 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    test_avgpool(src, "avgpool_8x8.ppm", 8, 8);
-    test_maxpool(src, "maxpool_8x8.ppm", 8, 8);
+    test_gaussianfilter(src, "gaussian_3x3.ppm", 3, 1.3);
+    test_medianfilter(src, "median_3x3.ppm", 3);
+    test_averagefilter(src, "average_3x3.ppm", 3);
+    test_motionfilter(src, "motion_3x3.ppm", 3);
+    test_maxminfilter(src, "maxmin_3x3.pgm", 3);
+    test_difffilter(src, "diff_h.pgm", true);
+    test_difffilter(src, "diff_v.pgm", false);
+    test_sobelfilter(src, "sobel_h.pgm", true);
+    test_sobelfilter(src, "sobel_v.pgm", false);
+    test_prewittfilter(src, "prewitt_h.pgm", true);
+    test_prewittfilter(src, "prewitt_v.pgm", false);
+    test_laplacianfilter(src, "laplacian.pgm");
+    test_embossfilter(src, "emboss.pgm");
+    test_logfilter(src, "log_5x5.pgm", 5, 3);
 
     img_free(src);
 
