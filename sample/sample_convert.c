@@ -27,9 +27,16 @@ void test_grayscale(img_t *src, const char *dst_file)
 
 void test_binarize(img_t *src, const char *dst_file, int thresh)
 {
-    img_t *dst = binarize(src, thresh);
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+
+    img_t *dst = binarize(gray, thresh);
 
     write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
+        img_free(gray);
+    }
 
     img_free(dst);
 
@@ -38,9 +45,16 @@ void test_binarize(img_t *src, const char *dst_file, int thresh)
 
 void test_binarize_otsu(img_t *src, const char *dst_file)
 {
-    img_t *dst = binarize_otsu(src);
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+
+    img_t *dst = binarize_otsu(gray);
 
     write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
+        img_free(gray);
+    }
 
     img_free(dst);
 
@@ -70,6 +84,10 @@ void test_histgram(img_t *src, const char* file)
 
     for (int i = 0; i < 256; i++) {
         fprintf(fp, "[%d]: %d\n", i, histgram[i]);
+    }
+
+    if (src->channels != CH_GRAY) {
+        img_free(gray);
     }
 
     fclose(fp);

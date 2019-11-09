@@ -39,12 +39,8 @@ img_t *binarize(img_t *src, uint8_t threshold)
         return NULL;
     }
 
-    for (int y = 0; y < src->height; y++) {
-        for (int x = 0; x < src->width; x++) {
-            uint8_t gray = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
-
-            dst->row[y][x] = (gray < threshold) ? 0 : UINT8_MAX;
-        }
+    for (int i = 0; i < (src->height * src->width); i++) {
+        dst->data[i] = (src->data[i] < threshold) ? 0 : UINT8_MAX;
     }
 
     return dst;
@@ -52,26 +48,11 @@ img_t *binarize(img_t *src, uint8_t threshold)
 
 img_t *binarize_otsu(img_t *src)
 {
-    if ((src == NULL) || (src->channels != CH_RGB)) {
-        return NULL;
-    }
-
-    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
-    if (dst == NULL) {
-        return NULL;
-    }
-
     int n_pix = src->width * src->height;
 
     int histgram[256] = { 0 };
-
-    for (int y = 0; y < src->height; y++) {
-        for (int x = 0; x < src->width; x++) {
-            uint8_t gray   = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
-            dst->row[y][x] = gray;
-
-            histgram[gray]++;
-        }
+    for (int i = 0; i < (src->height * src->width); i++) {
+        histgram[src->data[i]]++;
     }
 
     uint8_t threshold = 0;
@@ -105,11 +86,7 @@ img_t *binarize_otsu(img_t *src)
         }
     }
 
-    for (int i = 0; i < n_pix; i++) {
-        dst->data[i] = (dst->data[i] < threshold) ? 0 : UINT8_MAX;
-    }
-
-    return dst;
+    return binarize(src, threshold);
 }
 
 img_t *quantize(img_t *src, uint8_t level)
