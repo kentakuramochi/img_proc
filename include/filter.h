@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double stddev);
+img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma);
 
 img_t *median_filter(img_t *src, int filter_w, int filter_h);
 

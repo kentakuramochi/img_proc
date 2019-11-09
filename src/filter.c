@@ -50,12 +50,12 @@ static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h)
     return dst;
 }
 
-img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double stddev)
+img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma)
 {
     // create gaussian filter
     double filter[filter_w * filter_h];
 
-    double c   = 1 / (sqrt(2 * M_PI) * stddev);
+    double c   = 1 / (sqrt(2 * M_PI) * sigma);
     double sum = 0;
 
     int ofs_x = filter_w / 2;
@@ -65,7 +65,7 @@ img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double stddev)
     for (int y = 0; y < filter_h; y++) {
         int kx = ofs_x;
         for (int x = 0; x < filter_w; x++) {
-            filter[y * filter_w + x] = c * exp(-(kx * kx  + ky * ky) / (2 * stddev * stddev));
+            filter[y * filter_w + x] = c * exp(-(kx * kx  + ky * ky) / (2 * sigma * sigma));
             sum += filter[y * filter_w + x];
             kx++;
         }
