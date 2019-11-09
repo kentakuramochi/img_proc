@@ -78,8 +78,6 @@ static int get_next_int(FILE *fp)
     return parse_int(token);
 }
 
-// change to size_t !!!
-
 static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     int tmp;
@@ -227,17 +225,17 @@ img_t *read_pnm(const char *src)
         return NULL;
     }
 
-    COLORSPACE colorspace;
+    int channels;
 
     switch (n_magic) {  
         // ASCII format
-        case 1: colorspace = COLORSPACE_GRAY; break;
-        case 2: colorspace = COLORSPACE_GRAY; break;
-        case 3: colorspace = COLORSPACE_RGB;  break;
+        case 1: channels = CH_GRAY; break;
+        case 2: channels = CH_GRAY; break;
+        case 3: channels = CH_RGB;  break;
         // binary format
-        case 4: colorspace = COLORSPACE_GRAY; break;
-        case 5: colorspace = COLORSPACE_GRAY; break;
-        case 6: colorspace = COLORSPACE_RGB;  break;
+        case 4: channels = CH_GRAY; break;
+        case 5: channels = CH_GRAY; break;
+        case 6: channels = CH_RGB;  break;
         default:
             fclose(fp);
             return NULL;
@@ -265,7 +263,7 @@ img_t *read_pnm(const char *src)
         }
     }
 
-    img_t *img = img_allocate(width, height, colorspace);
+    img_t *img = img_allocate(width, height, channels);
 
     if (n_magic <= 3) {
         if (!read_pnm_ascii(fp, img, max, n_magic)) {
@@ -353,11 +351,20 @@ bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
         return false;
     }
 
-    // convert img format to magic number 2/3/5/6
-    uint8_t n_magic = ((int)img->colorspace + 2) + (int)format;
-
-    if ((n_magic < 1) || (n_magic > 6)) {
-        return false;
+    // convert (img format + colorspace) to magic number P2/3/5/6
+    uint8_t n_magic;
+    if (format == PNM_FORMAT_ASCII) {
+        switch (img->channels) {
+            case CH_GRAY: n_magic = 2;  break;
+            case CH_RGB:  n_magic = 3;  break;
+            default:      return false; break;
+        }
+    } else { // PNM_FORMAT_BINARY
+        switch (img->channels) {
+            case CH_GRAY: n_magic = 5;  break;
+            case CH_RGB:  n_magic = 6;  break;
+            default:      return false; break;
+        }
     }
 
     FILE *fp = fopen(dst, "wb");
@@ -365,8 +372,8 @@ bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
         return false;
     }
 
-    fprintf(fp, "P%d\n", n_magic);
-    fprintf(fp, "%u %u\n", img->width, img->height);
+    fprintf(fp, "P%u\n", n_magic);
+    fprintf(fp, "%d %d\n", img->width, img->height);
 
     if ((n_magic != 1) && (n_magic != 4)) {
         fprintf(fp, "%u\n", UINT8_MAX);

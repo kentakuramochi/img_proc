@@ -34,12 +34,12 @@ static uint8_t filter_sum(uint8_t **p_ch, int x, int y, int w, int h, double *fi
 
 static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
 
-    for (int c = 0; c < dst->channel; c++) {
+    for (int c = 0; c < dst->channels; c++) {
         for (int y = 0; y < dst->height; y ++) {
             for (int x = 0; x < dst->width; x ++) {
                 dst->ch[c][y][x] = filter_sum(src->ch[c], x, y, src->width, src->height, filter, filter_w, filter_h);
@@ -88,7 +88,7 @@ static int cmp_ascend(const void *a, const void *b)
 
 img_t *median_filter(img_t *src, int filter_w, int filter_h)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -101,7 +101,7 @@ img_t *median_filter(img_t *src, int filter_w, int filter_h)
 
     uint8_t filter[ksize];
     int ky, kx;
-    for (int c = 0; c < dst->channel; c++) {
+    for (int c = 0; c < dst->channels; c++) {
         for (int y = 0; y < dst->height; y ++) {
             for (int x = 0; x < dst->width; x ++) {
 
@@ -133,7 +133,7 @@ img_t *median_filter(img_t *src, int filter_w, int filter_h)
 
 img_t *average_filter(img_t *src, int filter_w, int filter_h)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -153,7 +153,7 @@ img_t *average_filter(img_t *src, int filter_w, int filter_h)
 
 img_t *motion_filter(img_t *src, int filter_w, int filter_h)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -170,11 +170,11 @@ img_t *motion_filter(img_t *src, int filter_w, int filter_h)
 
 img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -183,7 +183,7 @@ img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
     int ofs_y = -(filter_h / 2);
 
     int ky, kx;
-    for (int c = 0; c < dst->channel; c++) {
+    for (int c = 0; c < dst->channels; c++) {
         for (int y = 0; y < dst->height; y ++) {
             for (int x = 0; x < dst->width; x ++) {
 
@@ -217,11 +217,11 @@ img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
 
 img_t *diff_filter(img_t *src, bool is_horizontal)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -249,11 +249,11 @@ img_t *diff_filter(img_t *src, bool is_horizontal)
 
 img_t *sobel_filter(img_t *src, bool is_horizontal)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -288,11 +288,11 @@ img_t *sobel_filter(img_t *src, bool is_horizontal)
 
 img_t *prewitt_filter(img_t *src, bool is_horizontal)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -327,11 +327,11 @@ img_t *prewitt_filter(img_t *src, bool is_horizontal)
 
 img_t *laplacian_filter(img_t *src)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -347,11 +347,11 @@ img_t *laplacian_filter(img_t *src)
 
 img_t *emboss_filter(img_t *src)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -367,11 +367,11 @@ img_t *emboss_filter(img_t *src)
 
 img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma)
 {
-    if (src->colorspace != COLORSPACE_GRAY) {
+    if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }

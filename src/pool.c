@@ -32,7 +32,7 @@ static uint8_t pool_kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
 
 static img_t *pooling(img_t *src, int kernel_w, int kernel_h, KERNEL_TYPE type)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -48,7 +48,7 @@ static img_t *pooling(img_t *src, int kernel_w, int kernel_h, KERNEL_TYPE type)
             break;
     }
 
-    for (int c = 0; c < dst->channel; c++) {
+    for (int c = 0; c < dst->channels; c++) {
         for (int y = 0; y < dst->height; y += kernel_h) {
             for (int x = 0; x < dst->width; x += kernel_w) {
                 uint8_t pooled = kernel(src->ch[c], x, y, kernel_w, kernel_h);

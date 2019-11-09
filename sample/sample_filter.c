@@ -15,7 +15,7 @@ OPTIONS\n\
 
 PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-void test_gaussianfilter(img_t *src, const char *dst_file, int kernel_size, double stddev)
+void test_gaussian_filter(img_t *src, const char *dst_file, int kernel_size, double stddev)
 {
     img_t *dst = gaussian_filter(src, kernel_size, kernel_size, stddev);
 
@@ -26,7 +26,7 @@ void test_gaussianfilter(img_t *src, const char *dst_file, int kernel_size, doub
     return;
 }
 
-void test_medianfilter(img_t *src, const char *dst_file, int kernel_size)
+void test_median_filter(img_t *src, const char *dst_file, int kernel_size)
 {
     img_t *dst = median_filter(src, kernel_size, kernel_size);
 
@@ -37,7 +37,7 @@ void test_medianfilter(img_t *src, const char *dst_file, int kernel_size)
     return;
 }
 
-void test_averagefilter(img_t *src, const char *dst_file, int kernel_size)
+void test_average_filter(img_t *src, const char *dst_file, int kernel_size)
 {
     img_t *dst = average_filter(src, kernel_size, kernel_size);
 
@@ -48,7 +48,7 @@ void test_averagefilter(img_t *src, const char *dst_file, int kernel_size)
     return;
 }
 
-void test_motionfilter(img_t *src, const char *dst_file, int kernel_size)
+void test_motion_filter(img_t *src, const char *dst_file, int kernel_size)
 {
     img_t *dst = motion_filter(src, kernel_size, kernel_size);
 
@@ -59,161 +59,126 @@ void test_motionfilter(img_t *src, const char *dst_file, int kernel_size)
     return;
 }
 
-void test_maxminfilter(img_t *src, const char *dst_file, int kernel_size)
+void test_maxmin_filter(img_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = maxmin_filter(gray, kernel_size, kernel_size);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_difffilter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_diff_filter(img_t *src, const char *dst_file, bool is_horizontal)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = diff_filter(gray, is_horizontal);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_sobelfilter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_sobel_filter(img_t *src, const char *dst_file, bool is_horizontal)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = sobel_filter(gray, is_horizontal);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_prewittfilter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_prewitt_filter(img_t *src, const char *dst_file, bool is_horizontal)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = prewitt_filter(gray, is_horizontal);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_laplacianfilter(img_t *src, const char *dst_file)
+void test_laplacian_filter(img_t *src, const char *dst_file)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = laplacian_filter(gray);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_embossfilter(img_t *src, const char *dst_file)
+void test_emboss_filter(img_t *src, const char *dst_file)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = emboss_filter(gray);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
     return;
 }
 
-void test_logfilter(img_t *src, const char *dst_file, int kernel_size, double sigma)
+void test_log_filter(img_t *src, const char *dst_file, int kernel_size, double sigma)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     img_t *dst = log_filter(gray, kernel_size, kernel_size, sigma);
 
-    if (src->colorspace != COLORSPACE_GRAY) {
+    write_pnm(dst, dst_file, fmt);
+
+    if (src->channels != CH_GRAY) {
         img_free(gray);
     }
-
-    write_pnm(dst, dst_file, fmt);
 
     img_free(dst);
 
@@ -252,20 +217,20 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    test_gaussianfilter(src, "gaussian_3x3.ppm", 3, 1.3);
-    test_medianfilter(src, "median_3x3.ppm", 3);
-    test_averagefilter(src, "average_3x3.ppm", 3);
-    test_motionfilter(src, "motion_3x3.ppm", 3);
-    test_maxminfilter(src, "maxmin_3x3.pgm", 3);
-    test_difffilter(src, "diff_h.pgm", true);
-    test_difffilter(src, "diff_v.pgm", false);
-    test_sobelfilter(src, "sobel_h.pgm", true);
-    test_sobelfilter(src, "sobel_v.pgm", false);
-    test_prewittfilter(src, "prewitt_h.pgm", true);
-    test_prewittfilter(src, "prewitt_v.pgm", false);
-    test_laplacianfilter(src, "laplacian.pgm");
-    test_embossfilter(src, "emboss.pgm");
-    test_logfilter(src, "log_5x5.pgm", 5, 3);
+    test_gaussian_filter(src, "gaussian_3x3.ppm", 3, 1.3);
+    test_median_filter(src, "median_3x3.ppm", 3);
+    test_average_filter(src, "average_3x3.ppm", 3);
+    test_motion_filter(src, "motion_3x3.ppm", 3);
+    test_maxmin_filter(src, "maxmin_3x3.pgm", 3);
+    test_diff_filter(src, "diff_h.pgm", true);
+    test_diff_filter(src, "diff_v.pgm", false);
+    test_sobel_filter(src, "sobel_h.pgm", true);
+    test_sobel_filter(src, "sobel_v.pgm", false);
+    test_prewitt_filter(src, "prewitt_h.pgm", true);
+    test_prewitt_filter(src, "prewitt_v.pgm", false);
+    test_laplacian_filter(src, "laplacian.pgm");
+    test_emboss_filter(src, "emboss.pgm");
+    test_log_filter(src, "log_5x5.pgm", 5, 3);
 
     img_free(src);
 

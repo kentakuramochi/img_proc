@@ -10,12 +10,12 @@ static inline uint8_t rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
 
 img_t *rgb_to_gray(img_t *src)
 {
-    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
+    if ((src == NULL) || (src->channels != CH_RGB)) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
+    if (dst == NULL) {
         return NULL;
     }
 
@@ -30,12 +30,12 @@ img_t *rgb_to_gray(img_t *src)
 
 img_t *binarize(img_t *src, uint8_t threshold)
 {
-    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
+    if ((src == NULL) || (src->channels != CH_GRAY)) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
+    if (dst == NULL) {
         return NULL;
     }
 
@@ -52,12 +52,12 @@ img_t *binarize(img_t *src, uint8_t threshold)
 
 img_t *binarize_otsu(img_t *src)
 {
-    if ((src == NULL) && (src->colorspace != COLORSPACE_RGB)) {
+    if ((src == NULL) || (src->channels != CH_RGB)) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, COLORSPACE_GRAY);
-    if ((dst == NULL) && (dst->colorspace != COLORSPACE_GRAY)) {
+    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
+    if (dst == NULL) {
         return NULL;
     }
 
@@ -114,14 +114,14 @@ img_t *binarize_otsu(img_t *src)
 
 img_t *quantize(img_t *src, uint8_t level)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->colorspace);
+    img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
 
     uint8_t q_unit = 256 / level;
 
-    for (int i = 0; i < (src->channel * src->height * src->width); i++) {
+    for (int i = 0; i < (src->channels * src->height * src->width); i++) {
         uint8_t thresh = 0;
 
         for (int j = 0; j < level; j++) {

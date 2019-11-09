@@ -5,21 +5,22 @@
 #include <stdint.h>
 
 typedef enum {
-    COLORSPACE_GRAY,
-    COLORSPACE_RGB
-} COLORSPACE;
+    CH_GRAY = 1,
+    CH_RGB  = 3,
+    //CH_RGBA = 4,
+    //CH_YUV  = 3,
+} CH_NUM;
 
 typedef struct {
-    int         width;
-    int         height;
-    int         channel;
-    COLORSPACE  colorspace;
-    uint8_t     *data;
-    uint8_t     **row;
-    uint8_t     ***ch;
+    int     width;
+    int     height;
+    int     channels;
+    uint8_t *data;
+    uint8_t **row;
+    uint8_t ***ch;
 } img_t;
 
-img_t *img_allocate(int width, int height, COLORSPACE colorspace);
+img_t *img_allocate(int width, int height, int channels);
 
 img_t *img_clone(img_t *src);
 

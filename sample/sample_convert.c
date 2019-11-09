@@ -58,17 +58,10 @@ void test_quantize(img_t *src, const char *dst_file, int level)
     return;
 }
 
-
-
 void test_histgram(img_t *src, const char* file)
 {
-    img_t *gray;
-
-    if (src->colorspace != COLORSPACE_GRAY) {
-        gray = rgb_to_gray(src);
-    } else {
-        gray = src;
-    }
+    // get grayscale image
+    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     int histgram[256];
     get_hist(gray, histgram, 8);
