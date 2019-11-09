@@ -3,9 +3,9 @@
 #include <stddef.h>
 
 // conversion formula by ITU-R BT.601
-static inline rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
+static inline uint8_t rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
 {
-    return (0.299 * r + 0.587 * g + 0.114 * b);
+    return (uint8_t)(0.299 * r + 0.587 * g + 0.114 * b);
 }
 
 img_t *rgb_to_gray(img_t *src)
