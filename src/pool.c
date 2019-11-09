@@ -30,7 +30,7 @@ static uint8_t pool_kernel_avg(uint8_t **p_ch, int x, int y, int kw, int kh)
     return (uint8_t)(avg /= kw * kh);
 }
 
-static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_TYPE type)
+static img_t *pooling(img_t *src, int kernel_w, int kernel_h, KERNEL_TYPE type)
 {
     img_t *dst = img_allocate(src->width, src->height, src->colorspace);
     if (dst == NULL) {
@@ -65,12 +65,20 @@ static img_t *pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h, KERNEL_T
     return dst;
 }
 
-img_t *average_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+img_t *average_pooling(img_t *src, int kernel_w, int kernel_h)
 {
+    if ((kernel_w <= 0) || (kernel_h <= 0)) {
+        return NULL;
+    }
+
     return pooling(src, kernel_w, kernel_h, KERNEL_AVG);
 }
 
-img_t *max_pooling(img_t *src, uint32_t kernel_w, uint32_t kernel_h)
+img_t *max_pooling(img_t *src, int kernel_w, int kernel_h)
 {
+    if ((kernel_w <= 0) || (kernel_h <= 0)) {
+        return NULL;
+    }
+
     return pooling(src, kernel_w, kernel_h, KERNEL_MAX);
 }
