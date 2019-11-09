@@ -35,10 +35,10 @@ static char get_next_char(FILE *fp)
     return c;
 }
 
-static int get_token(FILE *fp, char *buf, size_t size)
+static size_t get_token(FILE *fp, char *buf, size_t size)
 {
     char c = get_next_char(fp);
-    int  i = 0;
+    size_t i = 0;
 
     while ((c != EOF) && !isspace(c) && (i < (size - 1))) {
         buf[i++] = c;
@@ -77,6 +77,8 @@ static int get_next_int(FILE *fp)
 
     return parse_int(token);
 }
+
+// change to size_t !!!
 
 static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
@@ -242,15 +244,15 @@ img_t *read_pnm(const char *src)
             break;
     }
 
-    uint32_t width  = get_next_int(fp);
-    uint32_t height = get_next_int(fp);
+    int width  = get_next_int(fp);
+    int height = get_next_int(fp);
 
     if ((width <= 0) || (height <= 0)) {
         fclose(fp);
         return NULL;
     }
 
-    uint8_t max;
+    int max;
 
     if ((n_magic == 1) || (n_magic == 4)) {
         max = 1;

@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-img_t *img_allocate(uint32_t width, uint32_t height, COLORSPACE colorspace)
+img_t *img_allocate(int width, int height, COLORSPACE colorspace)
 {
+    if ((width < 0) || (height < 0)) {
+        return NULL;
+    }
+
     img_t *img = (img_t*)malloc(sizeof(img_t));
 
     if (img == NULL) {
