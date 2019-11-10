@@ -3,12 +3,20 @@
 #include <stddef.h>
 #include <math.h>
 
-typedef enum {
-    KERNEL_MAX,
-    KERNEL_AVG
-} KERNEL_TYPE;
+typedef uint8_t (*pool_kernel)(img_t*, int, int, int, int, int);
 
-static uint8_t pool_kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
+static uint8_t kernel_avg(img_t *img, int x, int y, int c, int kw, int kh)
+{
+    int avg = 0;
+    for (int i = 0; i < kh; i++) {
+        for (int j = 0; j < kw; j++) {
+            avg += img->data[(y + kh) * img->stride + (x + kw) * img->channels + c];
+        }
+    }
+    return (uint8_t)(avg /= kw * kh);
+}
+
+static uint8_t kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
 {
     int max = 0;
     for (int i = 0; i < kh; i++) {
@@ -20,38 +28,16 @@ static uint8_t pool_kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
     return max;
 }
 
-static uint8_t pool_kernel_avg(img_t *img, int x, int y, int c, int kw, int kh)
-{
-    int avg = 0;
-    for (int i = 0; i < kh; i++) {
-        for (int j = 0; j < kw; j++) {
-            avg += img->data[(y + kh) * img->stride + (x + kw) * img->channels + c];
-        }
-    }
-    return (uint8_t)(avg /= kw * kh);
-}
-
-static img_t *pooling(img_t *src, int kernel_w, int kernel_h, KERNEL_TYPE type)
+static img_t *pooling(img_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
 {
     img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
 
-    uint8_t (*kernel)(img_t*, int, int, int, int, int);
-
-    switch (type) {
-        case KERNEL_MAX: kernel = pool_kernel_max; break;
-        case KERNEL_AVG: kernel = pool_kernel_avg; break;
-        default:
-            img_free(dst);
-            return NULL;
-            break;
-    }
-
-    for (int c = 0; c < dst->channels; c++) {
-        for (int y = 0; y < dst->height; y += kernel_h) {
-            for (int x = 0; x < dst->width; x += kernel_w) {
+    for (int y = 0; y < dst->height; y += kernel_h) {
+        for (int x = 0; x < dst->width; x += kernel_w) {
+            for (int c = 0; c < dst->channels; c++) {
                 uint8_t pooled = kernel(src, x, y, c, kernel_w, kernel_h);
                 for (int i = 0; i < kernel_h; i++) {
                     for (int j = 0; j < kernel_w; j++) {
@@ -71,7 +57,7 @@ img_t *average_pooling(img_t *src, int kernel_w, int kernel_h)
         return NULL;
     }
 
-    return pooling(src, kernel_w, kernel_h, KERNEL_AVG);
+    return pooling(src, kernel_w, kernel_h, kernel_avg);
 }
 
 img_t *max_pooling(img_t *src, int kernel_w, int kernel_h)
@@ -80,5 +66,5 @@ img_t *max_pooling(img_t *src, int kernel_w, int kernel_h)
         return NULL;
     }
 
-    return pooling(src, kernel_w, kernel_h, KERNEL_MAX);
+    return pooling(src, kernel_w, kernel_h, kernel_max);
 }
