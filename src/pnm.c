@@ -16,7 +16,7 @@ static char get_next_char(FILE *fp)
 
     while ((c = getc(fp)) != EOF) {
         if (is_comment) {
-            if (c == '\n' || c == '\r') {
+            if ((c == '\n') || (c == '\r')) {
                 is_comment = false;
             }
             continue;
@@ -88,7 +88,7 @@ static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->row[y][x] = tmp;
+                img->data[y * img->stride + x] = norm_uint8(tmp, 1);
             }
         }
     } else if (n_magic == 2) {
@@ -97,26 +97,28 @@ static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->row[y][x] = norm_uint8(tmp, max);
+                img->data[y * img->stride + x] = norm_uint8(tmp, max);
             }
         }
     } else {
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
-                if ((tmp = get_next_int(fp)) < 0) {
-                    return false;
-                }
-                img->ch[0][y][x] = norm_uint8(tmp, max);
+                uint8_t *pixel = &img->data[y * img->stride + x * img->channels];
 
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->ch[1][y][x] = norm_uint8(tmp, max);
+                *pixel = norm_uint8(tmp, max);
 
                 if ((tmp = get_next_int(fp)) < 0) {
                     return false;
                 }
-                img->ch[2][y][x] = norm_uint8(tmp, max);
+                *(pixel + 1) = norm_uint8(tmp, max);
+
+                if ((tmp = get_next_int(fp)) < 0) {
+                    return false;
+                }
+                *(pixel + 2) = norm_uint8(tmp, max);
             }
         }
     }
@@ -128,10 +130,9 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     uint8_t *row;
     uint8_t *item;
-    int     stride;
 
     if (n_magic == 4) {
-        stride = sizeof(uint8_t) * ((img->width + 7) / 8);
+        int stride = sizeof(uint8_t) * ((img->width + 7) / 8);
 
         if ((row = (uint8_t*)malloc(stride)) == NULL) {
             return false;
@@ -152,7 +153,7 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
             for (int x = 0; x < img->width; x++) {
                 shift--;
 
-                img->row[y][x] = (row[pos] >> shift) & 1;
+                img->data[y * img->stride + x] = (row[pos] >> shift) & 1;
 
                 if (shift == 0) {
                     shift = 8;
@@ -161,14 +162,12 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
             }
         }
     } else if (n_magic == 5) {
-        stride = sizeof(uint8_t) * img->width;
-
-        if ((row = (uint8_t*)malloc(stride)) == NULL) {
+        if ((row = (uint8_t*)malloc(img->stride)) == NULL) {
             return false;
         }
 
         for (int y = 0; y < img->height; y++) {
-            if (fread(row, stride, 1, fp) != 1) {
+            if (fread(row, img->stride, 1, fp) != 1) {
                 free(row);
                 return false;
             }
@@ -176,28 +175,28 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
             item = row;
 
             for (int x = 0; x < img->width; x++) {
-                img->row[y][x] = norm_uint8(*(item++), max);
+                img->data[y * img->stride + x] = norm_uint8(*(item++), max);
             }
         }
     } else {
-        stride = (sizeof(uint8_t) * 3) * img->width;
-
-        if ((row = (uint8_t*)malloc(stride)) == NULL) {
+        if ((row = (uint8_t*)malloc(img->stride)) == NULL) {
             return false;
         }
 
         for (int y = 0; y < img->height; y++) {
-            if (fread(row, stride, 1, fp) != 1) {
+            if (fread(row, img->stride, 1, fp) != 1) {
                 free(row);
                 return false;
             }
 
             item = row;
 
+            uint8_t *rowdata = &img->data[y * img->stride];
+
             for (int x = 0; x < img->width; x++) {
-                img->ch[0][y][x] = norm_uint8(*(item++), max);
-                img->ch[1][y][x] = norm_uint8(*(item++), max);
-                img->ch[2][y][x] = norm_uint8(*(item++), max);
+                *(rowdata++) = norm_uint8(*(item++), max); 
+                *(rowdata++) = norm_uint8(*(item++), max); 
+                *(rowdata++) = norm_uint8(*(item++), max); 
             }
         }
     }
@@ -285,7 +284,7 @@ static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
     if ((n_magic == 1) || (n_magic == 2)) {
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
-                fprintf(fp, "%u ", img->row[y][x]);
+                fprintf(fp, "%u ", img->data[y * img->stride + x]);
             }
             fseek(fp, -1, SEEK_CUR);
             fputc('\n', fp);
@@ -293,7 +292,8 @@ static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
     } else {
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
-                fprintf(fp, "%u %u %u ", img->ch[0][y][x], img->ch[1][y][x], img->ch[2][y][x]);
+                uint8_t *pixel = &img->data[y * img->stride + x * img->channels];
+                fprintf(fp, "%u %u %u ", *pixel, *(pixel + 1), *(pixel + 2));
             }
             fseek(fp, -1, SEEK_CUR);
             fputc('\n', fp);
@@ -315,7 +315,7 @@ static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
 
             for (int x = 0; x < img->width; x++) {
                 shift--;
-                packed_val |= (img->row[y][x] << shift);
+                packed_val |= (img->data[y * img->stride + x] << shift);
 
                 if (shift == 0) {
                     putc(packed_val, fp);
@@ -335,9 +335,10 @@ static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
     } else {
         for (int y = 0; y < img->height; y++) {
             for (int x = 0; x < img->width; x++) {
-                putc(img->ch[0][y][x], fp);
-                putc(img->ch[1][y][x], fp);
-                putc(img->ch[2][y][x], fp);
+                uint8_t *pixel = &img->data[y * img->stride + x];
+                putc(*pixel,       fp);
+                putc(*(pixel + 1), fp);
+                putc(*(pixel + 2), fp);
             }
         }
     }

@@ -18,6 +18,7 @@ img_t *img_allocate(int width, int height, int channels)
     img->width    = width;
     img->height   = height;
     img->channels = channels;
+    img->stride   = width * channels;
 
     img->data = (uint8_t*)malloc(sizeof(uint8_t) * (img->channels * img->height * img->width));
     if (img->data == NULL) {
@@ -25,39 +26,6 @@ img_t *img_allocate(int width, int height, int channels)
         img = NULL;
 
         return NULL;
-    }
-
-    img->row = (uint8_t**)malloc(sizeof(uint8_t*) * (img->channels * img->height));
-    if (img->row == NULL) {
-        free(img->data);
-        img->data = NULL;
-
-        free(img);
-        img = NULL;
-
-        return NULL;
-    }
-
-    for (int y = 0; y < (img->channels * img->height); y++) {
-        img->row[y] = img->data + (y * img->width);
-    }
-
-    img->ch = (uint8_t***)malloc(sizeof(uint8_t**) * img->channels);
-    if (img->ch == NULL) {
-        free(img->row);
-        img->row = NULL;
-
-        free(img->data);
-        img->data = NULL;
-
-        free(img);
-        img = NULL;
-
-        return NULL;
-    }
-
-    for (int c = 0; c < img->channels; c++) {
-        img->ch[c] = img->row + (c * img->height);
     }
 
     return img;
@@ -70,7 +38,7 @@ img_t *img_clone(img_t *src)
         return NULL;
     }
 
-    memcpy(dst->data, src->data, sizeof(uint8_t) * (dst->channels * dst->height * dst->width));
+    memcpy(dst->data, src->data, sizeof(uint8_t) * (dst->height * dst->width * dst->channels));
 
     return dst;
 }
@@ -80,12 +48,6 @@ void img_free(img_t *img)
     if (img == NULL) {
         return;
     }
-
-    free(img->ch);
-    img->ch = NULL;
-
-    free(img->row);
-    img->row = NULL;
 
     free(img->data);
     img->data = NULL;

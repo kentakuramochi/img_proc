@@ -7,7 +7,7 @@
 
 #define M_PI 3.14159265358979
 
-static uint8_t filter_sum(uint8_t **p_ch, int x, int y, int w, int h, double *filter, int kw, int kh)
+static uint8_t filter_sum(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -18,8 +18,8 @@ static uint8_t filter_sum(uint8_t **p_ch, int x, int y, int w, int h, double *fi
     for (int i = 0; i < kh; i++) {
         int kx = x - ofs_x;
         for (int j = 0; j < kw; j++) {
-            if ((kx >= 0) && (kx < w) && (ky >= 0) && (ky < h)) {
-                sum += p_ch[ky][kx] * filter[i * kw + j];
+            if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
+                sum += img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
             }
             kx++;
         }
@@ -32,6 +32,65 @@ static uint8_t filter_sum(uint8_t **p_ch, int x, int y, int w, int h, double *fi
     return (uint8_t)sum;
 }
 
+// compare function for ascending order
+static int cmp_ascend(const void *a, const void *b)
+{
+    return *(uint8_t*)a - *(uint8_t*)b;
+}
+
+static uint8_t filter_median(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
+{
+    int ofs_x = kw / 2;
+    int ofs_y = kh / 2;
+
+    const int ksize   = kw * kh;
+    const int mid_idx = (ksize - 1) / 2;
+
+    int ky = y - ofs_y;
+    for (int i = 0; i < kh; i++) {
+        int kx = x - ofs_x;
+        for (int j = 0; j < kw; j++) {
+            if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
+                filter[i * kw + j] = img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
+            }
+            kx++;
+        }
+        ky++;
+    }
+
+    qsort(filter, ksize, 1, cmp_ascend);
+
+    return (ksize % 2 == 1) ? filter[mid_idx] : (filter[mid_idx] + filter[mid_idx + 1]) / 2;
+}
+
+static uint8_t filter_maxmin(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
+{
+    int ofs_x = kw / 2;
+    int ofs_y = kh / 2;
+
+    uint8_t max = 0;
+    uint8_t min = UINT8_MAX;
+    int ky = y - ofs_y;
+    for (int i = 0; i < kh; i++) {
+        int kx = x - ofs_x;
+        for (int j = 0; j < kw; j++) {
+            if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
+                uint8_t val = img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
+                if (max < val) {
+                    max = val;
+                }
+                if (min > val) {
+                    min = val;
+                }
+            }
+            kx++;
+        }
+        ky++;
+    }
+
+    return (max - min);
+}
+
 static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h)
 {
     img_t *dst = img_allocate(src->width, src->height, src->channels);
@@ -39,10 +98,10 @@ static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h)
         return NULL;
     }
 
-    for (int c = 0; c < dst->channels; c++) {
-        for (int y = 0; y < dst->height; y ++) {
-            for (int x = 0; x < dst->width; x ++) {
-                dst->ch[c][y][x] = filter_sum(src->ch[c], x, y, src->width, src->height, filter, filter_w, filter_h);
+    for (int y = 0; y < dst->height; y ++) {
+        for (int x = 0; x < dst->width; x ++) {
+            for (int c = 0; c < dst->channels; c++) {
+                dst->data[y * dst->stride + x * dst->channels + c] = filter_sum(src, x, y, c, filter, filter_w, filter_h);
             }
         }
     }
@@ -80,12 +139,6 @@ img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma)
     return filtering(src, filter, filter_w, filter_h);
 }
 
-// compare function for ascending order
-static int cmp_ascend(const void *a, const void *b)
-{
-    return *(uint8_t*)a - *(uint8_t*)b;
-}
-
 img_t *median_filter(img_t *src, int filter_w, int filter_h)
 {
     img_t *dst = img_allocate(src->width, src->height, src->channels);
@@ -93,37 +146,12 @@ img_t *median_filter(img_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    const int ksize   = filter_w * filter_h;
-    const int mid_idx = (ksize - 1) / 2;
+    double filter[filter_w * filter_h];
 
-    int ofs_x = -(filter_w / 2);
-    int ofs_y = -(filter_h / 2);
-
-    uint8_t filter[ksize];
-    int ky, kx;
-    for (int c = 0; c < dst->channels; c++) {
-        for (int y = 0; y < dst->height; y ++) {
-            for (int x = 0; x < dst->width; x ++) {
-
-                ky = y + ofs_y;
-                for (int i = 0; i < filter_h; i++) {
-                    kx = x + ofs_x;
-                    for (int j = 0; j < filter_h; j++) {
-                        if ((ky >= 0) && (ky < src->height) &&
-                            (kx >= 0) && (kx < src->width)) {
-                            filter[i * filter_w + j] = src->ch[c][ky][kx];
-                        } else {
-                            filter[i * filter_w + j] = 0;
-                        }
-                        kx++;
-                    }
-                    ky++;
-                }
-
-                qsort(filter, ksize, 1, cmp_ascend);
-
-                dst->ch[c][y][x] = (ksize % 2 == 1) ? filter[mid_idx] :
-                    (filter[mid_idx] + filter[mid_idx + 1]) / 2;
+    for (int y = 0; y < dst->height; y ++) {
+        for (int x = 0; x < dst->width; x ++) {
+            for (int c = 0; c < dst->channels; c++) {
+                dst->data[y * dst->stride + x * dst->channels + c] = filter_median(src, x, y, c, filter, filter_w, filter_h);
             }
         }
     }
@@ -179,35 +207,10 @@ img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    int ofs_x = -(filter_w / 2);
-    int ofs_y = -(filter_h / 2);
-
-    int ky, kx;
-    for (int c = 0; c < dst->channels; c++) {
-        for (int y = 0; y < dst->height; y ++) {
-            for (int x = 0; x < dst->width; x ++) {
-
-                uint8_t max = 0;
-                uint8_t min = UINT8_MAX;
-                ky = y + ofs_y;
-                for (int i = 0; i < filter_h; i++) {
-                    kx = x + ofs_x;
-                    for (int j = 0; j < filter_h; j++) {
-                        if ((ky >= 0) && (ky < src->height) &&
-                            (kx >= 0) && (kx < src->width)) {
-                            if (max < src->ch[c][ky][kx]) {
-                                max = src->ch[c][ky][kx];
-                            }
-                            if (min > src->ch[c][ky][kx]) {
-                                min = src->ch[c][ky][kx];
-                            }
-                        }
-                        kx++;
-                    }
-                    ky++;
-                }
-
-                dst->ch[c][y][x] = max - min;
+    for (int y = 0; y < dst->height; y ++) {
+        for (int x = 0; x < dst->width; x ++) {
+            for (int c = 0; c < dst->channels; c++) {
+                dst->data[y * dst->stride + x * dst->channels + c] = filter_maxmin(src, x, y, c, NULL, filter_w, filter_h);
             }
         }
     }

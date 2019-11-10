@@ -21,7 +21,8 @@ img_t *rgb_to_gray(img_t *src)
 
     for (int y = 0; y < src->height; y++) {
         for (int x = 0; x < src->width; x++) {
-            dst->row[y][x] = rgb_to_y_BT601(src->ch[0][y][x], src->ch[1][y][x], src->ch[2][y][x]);
+            uint8_t *pixel = &src->data[y * src->stride + x * src->channels];
+            dst->data[y * dst->stride + x] = rgb_to_y_BT601(*pixel, *(pixel + 1), *(pixel + 2));
         }
     }
 

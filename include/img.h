@@ -1,7 +1,6 @@
 #ifndef IMG_H
 #define IMG_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 typedef enum {
@@ -15,10 +14,14 @@ typedef struct {
     int     width;
     int     height;
     int     channels;
+    int     stride;
     uint8_t *data;
-    uint8_t **row;
-    uint8_t ***ch;
 } img_t;
+
+inline uint8_t getelem(img_t *img, int x, int y, int ch)
+{
+    return img->data[y * img->stride + x * img->channels + ch];
+}
 
 img_t *img_allocate(int width, int height, int channels);
 
