@@ -7,7 +7,9 @@
 
 #define M_PI 3.14159265358979
 
-static uint8_t filter_sum(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
+typedef uint8_t (*filter_kernel)(img_t*, int, int, int, double*, int, int);
+
+static uint8_t kernel_sum(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -38,20 +40,22 @@ static int cmp_ascend(const void *a, const void *b)
     return *(uint8_t*)a - *(uint8_t*)b;
 }
 
-static uint8_t filter_median(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
+static uint8_t kernel_median(img_t *img, int x, int y, int c, uint8_t *filter, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
 
-    const int ksize   = kw * kh;
-    const int mid_idx = (ksize - 1) / 2;
+    const int ksize = kw * kh;
+    const int mid   = (ksize - 1) / 2;
 
     int ky = y - ofs_y;
     for (int i = 0; i < kh; i++) {
         int kx = x - ofs_x;
         for (int j = 0; j < kw; j++) {
             if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
-                filter[i * kw + j] = img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
+                filter[i * kw + j] = img->data[ky * img->stride + kx * img->channels + c];
+            } else {
+                filter[i * kw + j] = 0;
             }
             kx++;
         }
@@ -60,28 +64,25 @@ static uint8_t filter_median(img_t *img, int x, int y, int c, double *filter, in
 
     qsort(filter, ksize, 1, cmp_ascend);
 
-    return (ksize % 2 == 1) ? filter[mid_idx] : (filter[mid_idx] + filter[mid_idx + 1]) / 2;
+    return (ksize % 2 == 1) ? filter[mid] : (filter[mid] + filter[mid + 1]) / 2;
 }
 
-static uint8_t filter_maxmin(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
+static uint8_t kernel_maxmin(img_t *img, int x, int y, int c, double *filter, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
 
     uint8_t max = 0;
     uint8_t min = UINT8_MAX;
+
     int ky = y - ofs_y;
     for (int i = 0; i < kh; i++) {
         int kx = x - ofs_x;
         for (int j = 0; j < kw; j++) {
             if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
-                uint8_t val = img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
-                if (max < val) {
-                    max = val;
-                }
-                if (min > val) {
-                    min = val;
-                }
+                uint8_t val = img->data[ky * img->stride + kx * img->channels + c];
+                max = (val > max) ? val : max;
+                min = (val < min) ? val : min;
             }
             kx++;
         }
@@ -91,17 +92,17 @@ static uint8_t filter_maxmin(img_t *img, int x, int y, int c, double *filter, in
     return (max - min);
 }
 
-static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h)
+static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h, filter_kernel kernel)
 {
     img_t *dst = img_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
 
-    for (int y = 0; y < dst->height; y ++) {
-        for (int x = 0; x < dst->width; x ++) {
+    for (int y = 0; y < dst->height; y++) {
+        for (int x = 0; x < dst->width; x++) {
             for (int c = 0; c < dst->channels; c++) {
-                dst->data[y * dst->stride + x * dst->channels + c] = filter_sum(src, x, y, c, filter, filter_w, filter_h);
+                dst->data[y * dst->stride + x * dst->channels + c] = kernel(src, x, y, c, filter, filter_w, filter_h);
             }
         }
     }
@@ -136,7 +137,7 @@ img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma)
         filter[i] *= c;
     }
 
-    return filtering(src, filter, filter_w, filter_h);
+    return filtering(src, filter, filter_w, filter_h, kernel_sum);
 }
 
 img_t *median_filter(img_t *src, int filter_w, int filter_h)
@@ -146,12 +147,12 @@ img_t *median_filter(img_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    double filter[filter_w * filter_h];
+    uint8_t filter[filter_w * filter_h];
 
-    for (int y = 0; y < dst->height; y ++) {
-        for (int x = 0; x < dst->width; x ++) {
+    for (int y = 0; y < dst->height; y++) {
+        for (int x = 0; x < dst->width; x++) {
             for (int c = 0; c < dst->channels; c++) {
-                dst->data[y * dst->stride + x * dst->channels + c] = filter_median(src, x, y, c, filter, filter_w, filter_h);
+                dst->data[y * dst->stride + x * dst->channels + c] = kernel_median(src, x, y, c, filter, filter_w, filter_h);
             }
         }
     }
@@ -176,7 +177,7 @@ img_t *average_filter(img_t *src, int filter_w, int filter_h)
         }
     }
 
-    return filtering(src, filter, filter_w, filter_h);
+    return filtering(src, filter, filter_w, filter_h, kernel_sum);
 }
 
 img_t *motion_filter(img_t *src, int filter_w, int filter_h)
@@ -193,7 +194,7 @@ img_t *motion_filter(img_t *src, int filter_w, int filter_h)
         filter[i * filter_w + i] = 1.0 / filter_w;
     }
 
-    return filtering(src, filter, filter_w, filter_h);
+    return filtering(src, filter, filter_w, filter_h, kernel_sum);
 }
 
 img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
@@ -207,10 +208,10 @@ img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    for (int y = 0; y < dst->height; y ++) {
-        for (int x = 0; x < dst->width; x ++) {
+    for (int y = 0; y < dst->height; y++) {
+        for (int x = 0; x < dst->width; x++) {
             for (int c = 0; c < dst->channels; c++) {
-                dst->data[y * dst->stride + x * dst->channels + c] = filter_maxmin(src, x, y, c, NULL, filter_w, filter_h);
+                dst->data[y * dst->stride + x * dst->channels + c] = kernel_maxmin(src, x, y, c, NULL, filter_w, filter_h);
             }
         }
     }
@@ -247,7 +248,7 @@ img_t *diff_filter(img_t *src, bool is_horizontal)
         filter[4] =  0.5;
     }
 
-    return filtering(src, filter, 3, 3);
+    return filtering(src, filter, 3, 3, kernel_sum);
 }
 
 img_t *sobel_filter(img_t *src, bool is_horizontal)
@@ -286,7 +287,7 @@ img_t *sobel_filter(img_t *src, bool is_horizontal)
         filter[8] = -1;
     }
 
-    return filtering(src, filter, 3, 3);
+    return filtering(src, filter, 3, 3, kernel_sum);
 }
 
 img_t *prewitt_filter(img_t *src, bool is_horizontal)
@@ -325,7 +326,7 @@ img_t *prewitt_filter(img_t *src, bool is_horizontal)
         filter[8] =  1;
     }
 
-    return filtering(src, filter, 3, 3);
+    return filtering(src, filter, 3, 3, kernel_sum);
 }
 
 img_t *laplacian_filter(img_t *src)
@@ -345,7 +346,7 @@ img_t *laplacian_filter(img_t *src)
          0,  1,  0
     };
 
-    return filtering(src, filter, 3, 3);
+    return filtering(src, filter, 3, 3, kernel_sum);
 }
 
 img_t *emboss_filter(img_t *src)
@@ -365,7 +366,7 @@ img_t *emboss_filter(img_t *src)
          0,  1,  2
     };
 
-    return filtering(src, filter, 3, 3);
+    return filtering(src, filter, 3, 3, kernel_sum);
 }
 
 img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma)
@@ -406,5 +407,5 @@ img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma)
         filter[i] /= sum;
     }
 
-    return filtering(src, filter, filter_w, filter_h);
+    return filtering(src, filter, filter_w, filter_h, kernel_sum);
 }
