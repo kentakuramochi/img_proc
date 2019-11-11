@@ -3,9 +3,9 @@
 #include <stddef.h>
 #include <math.h>
 
-typedef uint8_t (*pool_kernel)(img_t*, int, int, int, int, int);
+typedef uint8_t (*pool_kernel)(cimg_t*, int, int, int, int, int);
 
-static uint8_t kernel_avg(img_t *img, int x, int y, int c, int kw, int kh)
+static uint8_t kernel_avg(cimg_t *img, int x, int y, int c, int kw, int kh)
 {
     int avg = 0;
     for (int i = 0; i < kh; i++) {
@@ -16,7 +16,7 @@ static uint8_t kernel_avg(img_t *img, int x, int y, int c, int kw, int kh)
     return (uint8_t)(avg /= kw * kh);
 }
 
-static uint8_t kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
+static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
 {
     int max = 0;
     for (int i = 0; i < kh; i++) {
@@ -28,9 +28,9 @@ static uint8_t kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
     return max;
 }
 
-static img_t *pooling(img_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
+static cimg_t *pooling(cimg_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -51,7 +51,7 @@ static img_t *pooling(img_t *src, int kernel_w, int kernel_h, pool_kernel kernel
     return dst;
 }
 
-img_t *average_pooling(img_t *src, int kernel_w, int kernel_h)
+cimg_t *average_pooling(cimg_t *src, int kernel_w, int kernel_h)
 {
     if ((kernel_w <= 0) || (kernel_h <= 0)) {
         return NULL;
@@ -60,7 +60,7 @@ img_t *average_pooling(img_t *src, int kernel_w, int kernel_h)
     return pooling(src, kernel_w, kernel_h, kernel_avg);
 }
 
-img_t *max_pooling(img_t *src, int kernel_w, int kernel_h)
+cimg_t *max_pooling(cimg_t *src, int kernel_w, int kernel_h)
 {
     if ((kernel_w <= 0) || (kernel_h <= 0)) {
         return NULL;

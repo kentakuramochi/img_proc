@@ -14,68 +14,68 @@ OPTIONS\n\
 
 PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-void test_grayscale(img_t *src, const char *dst_file)
+void test_grayscale(cimg_t *src, const char *dst_file)
 {
-    img_t *dst = rgb_to_gray(src);
+    cimg_t *dst = rgb_to_gray(src);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_binarize(img_t *src, const char *dst_file, int thresh)
+void test_binarize(cimg_t *src, const char *dst_file, int thresh)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = binarize(gray, thresh);
+    cimg_t *dst = binarize(gray, thresh);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_binarize_otsu(img_t *src, const char *dst_file)
+void test_binarize_otsu(cimg_t *src, const char *dst_file)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = binarize_otsu(gray);
+    cimg_t *dst = binarize_otsu(gray);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_quantize(img_t *src, const char *dst_file, int level)
+void test_quantize(cimg_t *src, const char *dst_file, int level)
 {
-    img_t *dst = quantize(src, level);
+    cimg_t *dst = quantize(src, level);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_histgram(img_t *src, const char* file)
+void test_histgram(cimg_t *src, const char* file)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
     int histgram[256];
     get_hist(gray, histgram, 8);
@@ -87,7 +87,7 @@ void test_histgram(img_t *src, const char* file)
     }
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
     fclose(fp);
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    img_t *src = read_pnm(argv[1]);
+    cimg_t *src = read_pnm(argv[1]);
 
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     test_quantize(src, "quant_8.ppm", 8);
     test_histgram(src, "histgram.txt");
 
-    img_free(src);
+    cimg_free(src);
 
     return 0;
 }

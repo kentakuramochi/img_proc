@@ -15,172 +15,172 @@ OPTIONS\n\
 
 PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-void test_gaussian_filter(img_t *src, const char *dst_file, int kernel_size, double stddev)
+void test_gaussian_filter(cimg_t *src, const char *dst_file, int kernel_size, double stddev)
 {
-    img_t *dst = gaussian_filter(src, kernel_size, kernel_size, stddev);
+    cimg_t *dst = gaussian_filter(src, kernel_size, kernel_size, stddev);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_median_filter(img_t *src, const char *dst_file, int kernel_size)
+void test_median_filter(cimg_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *dst = median_filter(src, kernel_size, kernel_size);
+    cimg_t *dst = median_filter(src, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_average_filter(img_t *src, const char *dst_file, int kernel_size)
+void test_average_filter(cimg_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *dst = average_filter(src, kernel_size, kernel_size);
+    cimg_t *dst = average_filter(src, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_motion_filter(img_t *src, const char *dst_file, int kernel_size)
+void test_motion_filter(cimg_t *src, const char *dst_file, int kernel_size)
 {
-    img_t *dst = motion_filter(src, kernel_size, kernel_size);
+    cimg_t *dst = motion_filter(src, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_maxmin_filter(img_t *src, const char *dst_file, int kernel_size)
+void test_maxmin_filter(cimg_t *src, const char *dst_file, int kernel_size)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = maxmin_filter(gray, kernel_size, kernel_size);
+    cimg_t *dst = maxmin_filter(gray, kernel_size, kernel_size);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_diff_filter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_diff_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = diff_filter(gray, is_horizontal);
+    cimg_t *dst = diff_filter(gray, is_horizontal);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_sobel_filter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_sobel_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = sobel_filter(gray, is_horizontal);
+    cimg_t *dst = sobel_filter(gray, is_horizontal);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_prewitt_filter(img_t *src, const char *dst_file, bool is_horizontal)
+void test_prewitt_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = prewitt_filter(gray, is_horizontal);
+    cimg_t *dst = prewitt_filter(gray, is_horizontal);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_laplacian_filter(img_t *src, const char *dst_file)
+void test_laplacian_filter(cimg_t *src, const char *dst_file)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = laplacian_filter(gray);
+    cimg_t *dst = laplacian_filter(gray);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_emboss_filter(img_t *src, const char *dst_file)
+void test_emboss_filter(cimg_t *src, const char *dst_file)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = emboss_filter(gray);
+    cimg_t *dst = emboss_filter(gray);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_log_filter(img_t *src, const char *dst_file, int kernel_size, double sigma)
+void test_log_filter(cimg_t *src, const char *dst_file, int kernel_size, double sigma)
 {
     // get grayscale image
-    img_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
+    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
 
-    img_t *dst = log_filter(gray, kernel_size, kernel_size, sigma);
+    cimg_t *dst = log_filter(gray, kernel_size, kernel_size, sigma);
 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        img_free(gray);
+        cimg_free(gray);
     }
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    img_t *src = read_pnm(argv[1]);
+    cimg_t *src = read_pnm(argv[1]);
 
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     test_emboss_filter(src, "emboss.pgm");
     test_log_filter(src, "log_5x5.pgm", 5, 3);
 
-    img_free(src);
+    cimg_free(src);
 
     return 0;
 }

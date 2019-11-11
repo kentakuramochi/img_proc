@@ -1,16 +1,16 @@
-#include "img.h"
+#include "cimg.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-img_t *img_allocate(int width, int height, int channels)
+cimg_t *cimg_allocate(int width, int height, int channels)
 {
     if ((width <= 0) || (height <= 0) || (channels <= 0)) {
         return NULL;
     }
 
-    img_t *img = (img_t*)malloc(sizeof(img_t));
+    cimg_t *img = (cimg_t*)malloc(sizeof(cimg_t));
     if (img == NULL) {
         return NULL;
     }
@@ -31,19 +31,19 @@ img_t *img_allocate(int width, int height, int channels)
     return img;
 }
 
-img_t *img_clone(img_t *src)
+cimg_t *cimg_clone(cimg_t *img)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_allocate(img->width, img->height, img->channels);
     if (dst == NULL) {
         return NULL;
     }
 
-    memcpy(dst->data, src->data, sizeof(uint8_t) * (dst->height * dst->width * dst->channels));
+    memcpy(dst->data, img->data, sizeof(uint8_t) * (dst->height * dst->width * dst->channels));
 
     return dst;
 }
 
-void img_free(img_t *img)
+void cimg_free(cimg_t *img)
 {
     if (img == NULL) {
         return;

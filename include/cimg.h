@@ -1,5 +1,5 @@
-#ifndef IMG_H
-#define IMG_H
+#ifndef CIMG_H
+#define CIMG_H
 
 #include <stdint.h>
 
@@ -16,17 +16,17 @@ typedef struct {
     int     channels;
     int     stride;
     uint8_t *data;
-} img_t;
+} cimg_t;
 
-inline uint8_t getelem(img_t *img, int x, int y, int ch)
+inline uint8_t cimg_getelem(cimg_t *img, int x, int y, int ch)
 {
     return img->data[y * img->stride + x * img->channels + ch];
 }
 
-img_t *img_allocate(int width, int height, int channels);
+cimg_t *cimg_allocate(int width, int height, int channels);
 
-img_t *img_clone(img_t *src);
+cimg_t *cimg_clone(cimg_t *img);
 
-void img_free(img_t *img);
+void cimg_free(cimg_t *img);
 
-#endif // IMG_H
+#endif // CIMG_H

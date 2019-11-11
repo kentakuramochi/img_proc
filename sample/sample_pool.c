@@ -15,24 +15,24 @@ OPTIONS\n\
 
 PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-void test_avgpool(img_t *src, const char *dst_file, int kw, int kh)
+void test_avgpool(cimg_t *src, const char *dst_file, int kw, int kh)
 {
-    img_t *dst = average_pooling(src, kw, kh);
+    cimg_t *dst = average_pooling(src, kw, kh);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
 
-void test_maxpool(img_t *src, const char *dst_file, int kw, int kh)
+void test_maxpool(cimg_t *src, const char *dst_file, int kw, int kh)
 {
-    img_t *dst = max_pooling(src, kw, kh);
+    cimg_t *dst = max_pooling(src, kw, kh);
 
     write_pnm(dst, dst_file, fmt);
 
-    img_free(dst);
+    cimg_free(dst);
 
     return;
 }
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    img_t *src = read_pnm(argv[1]);
+    cimg_t *src = read_pnm(argv[1]);
 
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     test_avgpool(src, "avgpool_8x8.ppm", 8, 8);
     test_maxpool(src, "maxpool_8x8.ppm", 8, 8);
 
-    img_free(src);
+    cimg_free(src);
 
     return 0;
 }

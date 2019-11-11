@@ -8,13 +8,13 @@ static inline uint8_t rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
     return (uint8_t)(0.299 * r + 0.587 * g + 0.114 * b);
 }
 
-img_t *rgb_to_gray(img_t *src)
+cimg_t *rgb_to_gray(cimg_t *src)
 {
     if ((src == NULL) || (src->channels != CH_RGB)) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -29,13 +29,13 @@ img_t *rgb_to_gray(img_t *src)
     return dst;
 }
 
-img_t *binarize(img_t *src, uint8_t threshold)
+cimg_t *binarize(cimg_t *src, uint8_t threshold)
 {
     if ((src == NULL) || (src->channels != CH_GRAY)) {
         return NULL;
     }
 
-    img_t *dst = img_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -47,7 +47,7 @@ img_t *binarize(img_t *src, uint8_t threshold)
     return dst;
 }
 
-img_t *binarize_otsu(img_t *src)
+cimg_t *binarize_otsu(cimg_t *src)
 {
     int n_pix = src->width * src->height;
 
@@ -90,9 +90,9 @@ img_t *binarize_otsu(img_t *src)
     return binarize(src, threshold);
 }
 
-img_t *quantize(img_t *src, uint8_t level)
+cimg_t *quantize(cimg_t *src, uint8_t level)
 {
-    img_t *dst = img_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -116,7 +116,7 @@ img_t *quantize(img_t *src, uint8_t level)
     return dst;
 }
 
-void get_hist(img_t *src, int histgram[256], int bin)
+void get_hist(cimg_t *src, int histgram[256], int bin)
 {
     for (int i = 0; i < 256; i++) {
         histgram[i] = 0;

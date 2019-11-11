@@ -78,7 +78,7 @@ static int get_next_int(FILE *fp)
     return parse_int(token);
 }
 
-static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
+static bool read_pnm_ascii(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
 {
     int tmp;
 
@@ -126,7 +126,7 @@ static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
     return true;
 }
 
-static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
+static bool read_pnm_binary(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
 {
     uint8_t *row;
     uint8_t *item;
@@ -206,7 +206,7 @@ static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
     return true;
 }
 
-img_t *read_pnm(const char *src)
+cimg_t *read_pnm(const char *src)
 {
     FILE *fp = fopen(src, "rb");
 
@@ -262,7 +262,7 @@ img_t *read_pnm(const char *src)
         }
     }
 
-    img_t *img = img_allocate(width, height, channels);
+    cimg_t *img = cimg_allocate(width, height, channels);
 
     if (n_magic <= 3) {
         if (!read_pnm_ascii(fp, img, max, n_magic)) {
@@ -279,7 +279,7 @@ img_t *read_pnm(const char *src)
     return img;
 }
 
-static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
+static bool write_pnm_ascii(FILE *fp, cimg_t *img, uint8_t n_magic)
 {
     if ((n_magic == 1) || (n_magic == 2)) {
         for (int y = 0; y < img->height; y++) {
@@ -303,7 +303,7 @@ static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
     return true;
 }
 
-static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
+static bool write_pnm_binary(FILE *fp, cimg_t *img, uint8_t n_magic)
 {
     if (n_magic == 4) {
         int     shift;
@@ -346,7 +346,7 @@ static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
     return true;
 }
 
-bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
+bool write_pnm(cimg_t *img, const char *dst, PNM_FORMAT format)
 {
     if (img == NULL) {
         return false;

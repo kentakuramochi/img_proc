@@ -1,30 +1,30 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "img.h"
+#include "cimg.h"
 
 #include <stdbool.h>
 
-img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma);
+cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma);
 
-img_t *median_filter(img_t *src, int filter_w, int filter_h);
+cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h);
 
-img_t *average_filter(img_t *src, int filter_w, int filter_h);
+cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h);
 
-img_t *motion_filter(img_t *src, int filter_w, int filter_h);
+cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h);
 
-img_t *maxmin_filter(img_t *src, int filter_w, int filter_h);
+cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h);
 
-img_t *diff_filter(img_t *src, bool is_horizontal);
+cimg_t *diff_filter(cimg_t *src, bool is_horizontal);
 
-img_t *sobel_filter(img_t *src, bool is_horizontal);
+cimg_t *sobel_filter(cimg_t *src, bool is_horizontal);
 
-img_t *prewitt_filter(img_t *src, bool is_horizontal);
+cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal);
 
-img_t *laplacian_filter(img_t *src);
+cimg_t *laplacian_filter(cimg_t *src);
 
-img_t *emboss_filter(img_t *src);
+cimg_t *emboss_filter(cimg_t *src);
 
-img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma);
+cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma);
 
 #endif // FILTER_H
