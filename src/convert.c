@@ -14,7 +14,7 @@ cimg_t *rgb_to_gray(cimg_t *src)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -35,7 +35,7 @@ cimg_t *binarize(cimg_t *src, uint8_t threshold)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -92,7 +92,7 @@ cimg_t *binarize_otsu(cimg_t *src)
 
 cimg_t *quantize(cimg_t *src, uint8_t level)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }

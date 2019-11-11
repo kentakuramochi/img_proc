@@ -94,7 +94,7 @@ static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *filter, i
 
 static cimg_t *filtering(cimg_t *src, double *filter, int filter_w, int filter_h, filter_kernel kernel)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -142,7 +142,7 @@ cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
 
 cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -162,7 +162,7 @@ cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
 
 cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -182,7 +182,7 @@ cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h)
 
 cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -203,7 +203,7 @@ cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -225,7 +225,7 @@ cimg_t *diff_filter(cimg_t *src, bool is_horizontal)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -257,7 +257,7 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -296,7 +296,7 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -335,7 +335,7 @@ cimg_t *laplacian_filter(cimg_t *src)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -355,7 +355,7 @@ cimg_t *emboss_filter(cimg_t *src)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -375,7 +375,7 @@ cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
         return NULL;
     }
 
-    cimg_t *dst = cimg_allocate(src->width, src->height, CH_GRAY);
+    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }

@@ -21,7 +21,7 @@ void test_avgpool(cimg_t *src, const char *dst_file, int kw, int kh)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -32,7 +32,7 @@ void test_maxpool(cimg_t *src, const char *dst_file, int kw, int kh)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     test_avgpool(src, "avgpool_8x8.ppm", 8, 8);
     test_maxpool(src, "maxpool_8x8.ppm", 8, 8);
 
-    cimg_free(src);
+    cimg_delete(src);
 
     return 0;
 }

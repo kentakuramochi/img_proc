@@ -262,7 +262,7 @@ cimg_t *read_pnm(const char *src)
         }
     }
 
-    cimg_t *img = cimg_allocate(width, height, channels);
+    cimg_t *img = cimg_create(width, height, channels);
 
     if (n_magic <= 3) {
         if (!read_pnm_ascii(fp, img, max, n_magic)) {

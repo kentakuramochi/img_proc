@@ -30,7 +30,7 @@ static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
 
 static cimg_t *pooling(cimg_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
 {
-    cimg_t *dst = cimg_allocate(src->width, src->height, src->channels);
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }

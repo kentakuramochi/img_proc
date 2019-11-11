@@ -20,7 +20,7 @@ void test_grayscale(cimg_t *src, const char *dst_file)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -35,10 +35,10 @@ void test_binarize(cimg_t *src, const char *dst_file, int thresh)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -53,10 +53,10 @@ void test_binarize_otsu(cimg_t *src, const char *dst_file)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -67,7 +67,7 @@ void test_quantize(cimg_t *src, const char *dst_file, int level)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -87,7 +87,7 @@ void test_histgram(cimg_t *src, const char* file)
     }
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
     fclose(fp);
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     test_quantize(src, "quant_8.ppm", 8);
     test_histgram(src, "histgram.txt");
 
-    cimg_free(src);
+    cimg_delete(src);
 
     return 0;
 }

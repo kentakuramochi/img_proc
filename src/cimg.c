@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-cimg_t *cimg_allocate(int width, int height, int channels)
+cimg_t *cimg_create(int width, int height, int channels)
 {
     if ((width <= 0) || (height <= 0) || (channels <= 0)) {
         return NULL;
@@ -33,7 +33,7 @@ cimg_t *cimg_allocate(int width, int height, int channels)
 
 cimg_t *cimg_clone(cimg_t *img)
 {
-    cimg_t *dst = cimg_allocate(img->width, img->height, img->channels);
+    cimg_t *dst = cimg_create(img->width, img->height, img->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -43,7 +43,7 @@ cimg_t *cimg_clone(cimg_t *img)
     return dst;
 }
 
-void cimg_free(cimg_t *img)
+void cimg_delete(cimg_t *img)
 {
     if (img == NULL) {
         return;

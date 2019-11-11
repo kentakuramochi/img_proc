@@ -21,7 +21,7 @@ void test_gaussian_filter(cimg_t *src, const char *dst_file, int kernel_size, do
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -32,7 +32,7 @@ void test_median_filter(cimg_t *src, const char *dst_file, int kernel_size)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -43,7 +43,7 @@ void test_average_filter(cimg_t *src, const char *dst_file, int kernel_size)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -54,7 +54,7 @@ void test_motion_filter(cimg_t *src, const char *dst_file, int kernel_size)
 
     write_pnm(dst, dst_file, fmt);
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -69,10 +69,10 @@ void test_maxmin_filter(cimg_t *src, const char *dst_file, int kernel_size)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -87,10 +87,10 @@ void test_diff_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -105,10 +105,10 @@ void test_sobel_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -123,10 +123,10 @@ void test_prewitt_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -141,10 +141,10 @@ void test_laplacian_filter(cimg_t *src, const char *dst_file)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -159,10 +159,10 @@ void test_emboss_filter(cimg_t *src, const char *dst_file)
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -177,10 +177,10 @@ void test_log_filter(cimg_t *src, const char *dst_file, int kernel_size, double 
     write_pnm(dst, dst_file, fmt);
 
     if (src->channels != CH_GRAY) {
-        cimg_free(gray);
+        cimg_delete(gray);
     }
 
-    cimg_free(dst);
+    cimg_delete(dst);
 
     return;
 }
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     test_emboss_filter(src, "emboss.pgm");
     test_log_filter(src, "log_5x5.pgm", 5, 3);
 
-    cimg_free(src);
+    cimg_delete(src);
 
     return 0;
 }

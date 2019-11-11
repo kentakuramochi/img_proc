@@ -23,10 +23,10 @@ inline uint8_t cimg_getelem(cimg_t *img, int x, int y, int ch)
     return img->data[y * img->stride + x * img->channels + ch];
 }
 
-cimg_t *cimg_allocate(int width, int height, int channels);
+cimg_t *cimg_create(int width, int height, int channels);
 
 cimg_t *cimg_clone(cimg_t *img);
 
-void cimg_free(cimg_t *img);
+void cimg_delete(cimg_t *img);
 
 #endif // CIMG_H
