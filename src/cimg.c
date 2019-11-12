@@ -1,3 +1,9 @@
+///
+/// @file   cimg.h
+/// @brief  base image structure
+/// @author kentakuramochi
+///
+
 #include "cimg.h"
 
 #include <stdio.h>
