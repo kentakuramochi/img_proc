@@ -1,10 +1,31 @@
+///
+/// @file   pool.c
+/// @brief  pooling functions
+/// @author kentakuramochi
+///
+
 #include "pool.h"
 
 #include <stddef.h>
 #include <math.h>
 
+///
+/// @typedef    pool_kernel
+/// @brief      pooling kernel function
+///
 typedef uint8_t (*pool_kernel)(cimg_t*, int, int, int, int, int);
 
+///
+/// @fn     kernel_avg
+/// @brief  get average in kernel
+/// @param  img [in]    pointer to source image
+/// @param  x   [in]    x coordinate
+/// @param  y   [in]    y coordinate
+/// @param  c   [in]    channel
+/// @param  kw  [in]    kernel width
+/// @param  kh  [in]    kernel height
+/// @return average in kernel
+///
 static uint8_t kernel_avg(cimg_t *img, int x, int y, int c, int kw, int kh)
 {
     int avg = 0;
@@ -16,6 +37,17 @@ static uint8_t kernel_avg(cimg_t *img, int x, int y, int c, int kw, int kh)
     return (uint8_t)(avg /= kw * kh);
 }
 
+///
+/// @fn     kernel_avg
+/// @brief  get max value in kernel
+/// @param  img [in]    pointer to source image
+/// @param  x   [in]    x coordinate
+/// @param  y   [in]    y coordinate
+/// @param  c   [in]    channel
+/// @param  kw  [in]    kernel width
+/// @param  kh  [in]    kernel height
+/// @return max value in kernel
+///
 static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
 {
     int max = 0;
@@ -28,6 +60,15 @@ static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
     return max;
 }
 
+///
+/// @fn     pooling
+/// @brief  adopt pooling with specified kernel
+/// @param  img         [in]    pointer to source image
+/// @param  kernel_w    [in]    kernel width
+/// @param  kernel_h    [in]    kernel width
+/// @param  kernel      [in]    kernel function
+/// @return pointer to processed image, NULL if failed
+///
 static cimg_t *pooling(cimg_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
 {
     cimg_t *dst = cimg_create(src->width, src->height, src->channels);
