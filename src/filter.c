@@ -1,3 +1,9 @@
+///
+/// @file   filter.c
+/// @brief  image filtering functions
+/// @author kentakuramochi
+///
+
 #include "filter.h"
 
 #include <stdlib.h>
@@ -5,11 +11,31 @@
 #include <math.h>
 #include <float.h>
 
+///
+/// @def    M_PI
+/// @brief  pi constant used for calculation
+///
 #define M_PI 3.14159265358979
 
+///
+/// @typedef    filter_kernel
+/// @brief      kernel functions
+///
 typedef uint8_t (*filter_kernel)(cimg_t*, int, int, int, double*, int, int);
 
-static uint8_t kernel_sum(cimg_t *img, int x, int y, int c, double *filter, int kw, int kh)
+///
+/// @fn     kernel_conv
+/// @brief  get convolutional value in kernel
+/// @param  src     [in]    pointer to source image
+/// @param  x       [in]    x coordinate
+/// @param  y       [in]    y coordinate
+/// @param  c       [in]    channel
+/// @param  kernel  [in]    coefficient kernel
+/// @param  kw      [in]    kernel width
+/// @param  kh      [in]    kernel height
+/// @return convolutional value in kernel
+///
+static uint8_t kernel_conv(cimg_t *img, int x, int y, int c, double *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -21,7 +47,7 @@ static uint8_t kernel_sum(cimg_t *img, int x, int y, int c, double *filter, int 
         int kx = x - ofs_x;
         for (int j = 0; j < kw; j++) {
             if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
-                sum += img->data[ky * img->stride + kx * img->channels + c] * filter[i * kw + j];
+                sum += img->data[ky * img->stride + kx * img->channels + c] * kernel[i * kw + j];
             }
             kx++;
         }
@@ -34,13 +60,31 @@ static uint8_t kernel_sum(cimg_t *img, int x, int y, int c, double *filter, int 
     return (uint8_t)sum;
 }
 
-// compare function for ascending order
+///
+/// @fn     cmp_ascend
+/// @brief  compare function for qsort() with ascending order
+/// @param  a   [in]    value0 to be sorted
+/// @param  b   [in]    value1 to be sorted
+/// @return positive if a > b, negative if a < b, 0 otherwise
+///
 static int cmp_ascend(const void *a, const void *b)
 {
     return *(uint8_t*)a - *(uint8_t*)b;
 }
 
-static uint8_t kernel_median(cimg_t *img, int x, int y, int c, uint8_t *filter, int kw, int kh)
+///
+/// @fn     kernel_median
+/// @brief  get median in kernel
+/// @param  src     [in]    pointer to source image
+/// @param  x       [in]    x coordinate
+/// @param  y       [in]    y coordinate
+/// @param  c       [in]    channel
+/// @param  kernel  [in]    kernel buffer to store values
+/// @param  kw      [in]    kernel width
+/// @param  kh      [in]    kernel height
+/// @return median in kernel
+///
+static uint8_t kernel_median(cimg_t *img, int x, int y, int c, uint8_t *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -53,21 +97,34 @@ static uint8_t kernel_median(cimg_t *img, int x, int y, int c, uint8_t *filter, 
         int kx = x - ofs_x;
         for (int j = 0; j < kw; j++) {
             if ((kx >= 0) && (kx < img->width) && (ky >= 0) && (ky < img->height)) {
-                filter[i * kw + j] = img->data[ky * img->stride + kx * img->channels + c];
+                kernel[i * kw + j] = img->data[ky * img->stride + kx * img->channels + c];
             } else {
-                filter[i * kw + j] = 0;
+                kernel[i * kw + j] = 0;
             }
             kx++;
         }
         ky++;
     }
 
-    qsort(filter, ksize, 1, cmp_ascend);
+    // sort with ascending order
+    qsort(kernel, ksize, 1, cmp_ascend);
 
-    return (ksize % 2 == 1) ? filter[mid] : (filter[mid] + filter[mid + 1]) / 2;
+    return (ksize % 2 == 1) ? kernel[mid] : (kernel[mid] + kernel[mid + 1]) / 2;
 }
 
-static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *filter, int kw, int kh)
+///
+/// @fn     kernel_maxmin
+/// @brief  get difference between max value and min value in kernel
+/// @param  src     [in]    pointer to source image
+/// @param  x       [in]    x coordinate
+/// @param  y       [in]    y coordinate
+/// @param  c       [in]    channel
+/// @param  kernel  [in]    kernel (not used, for funcptr argument) 
+/// @param  kw      [in]    kernel width
+/// @param  kh      [in]    kernel height
+/// @return median in kernel
+///
+static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -92,6 +149,16 @@ static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *filter, i
     return (max - min);
 }
 
+///
+/// @fn     filtering
+/// @brief  adopt filter with specified kernel
+/// @param  src         [in]    pointer to source image
+/// @param  filter      [in]    coefficient kernel
+/// @param  filter_w    [in]    kernel width
+/// @param  filter_h    [in]    kernel height
+/// @param  kernel      [in]    kernel function
+/// @return pointer to processed image, NULL if failed
+///
 static cimg_t *filtering(cimg_t *src, double *filter, int filter_w, int filter_h, filter_kernel kernel)
 {
     cimg_t *dst = cimg_create(src->width, src->height, src->channels);
@@ -112,10 +179,9 @@ static cimg_t *filtering(cimg_t *src, double *filter, int filter_w, int filter_h
 
 cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
 {
-    // create gaussian filter
+    // create gaussian kernel
     double filter[filter_w * filter_h];
 
-    double c   = 1 / (sqrt(2 * M_PI) * sigma);
     double sum = 0;
 
     int ofs_x = filter_w / 2;
@@ -125,19 +191,18 @@ cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
     for (int y = 0; y < filter_h; y++) {
         int kx = ofs_x;
         for (int x = 0; x < filter_w; x++) {
-            filter[y * filter_w + x] = c * exp(-(kx * kx  + ky * ky) / (2 * sigma * sigma));
+            filter[y * filter_w + x] = (1 / (sqrt(2 * M_PI) * sigma)) * exp(-(kx * kx  + ky * ky) / (2 * sigma * sigma));
             sum += filter[y * filter_w + x];
             kx++;
         }
         ky++;
     }
 
-    c = 1 / sum;
     for (int i = 0; i < (filter_w * filter_h); i++) {
-        filter[i] *= c;
+        filter[i] /= sum;
     }
 
-    return filtering(src, filter, filter_w, filter_h, kernel_sum);
+    return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
 cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
@@ -147,6 +212,7 @@ cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
+    // only used for store values
     uint8_t filter[filter_w * filter_h];
 
     for (int y = 0; y < dst->height; y++) {
@@ -167,17 +233,16 @@ cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    // create filter
+    // create kernel
     const int ksize = filter_w * filter_h;
     double filter[ksize];
-
     for (int y = 0; y < filter_h; y++) {
         for (int x = 0; x < filter_w; x++) {
             filter[y * filter_w + x] = 1.0 / ksize;
         }
     }
 
-    return filtering(src, filter, filter_w, filter_h, kernel_sum);
+    return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
 cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h)
@@ -187,14 +252,17 @@ cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h)
         return NULL;
     }
 
-    // create filter
+    // create kernel
+    // e.g.) 3x3
+    // 1/3   0    0
+    //  0   1/3   0
+    //  0    0   1/3
     double filter[filter_w * filter_h];
-
     for (int i = 0; i < filter_h; i++) {
         filter[i * filter_w + i] = 1.0 / filter_w;
     }
 
-    return filtering(src, filter, filter_w, filter_h, kernel_sum);
+    return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
 cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h)
@@ -233,14 +301,12 @@ cimg_t *diff_filter(cimg_t *src, bool is_horizontal)
     double filter[3 * 3] = { 0 };
     // using central difference form
     if (is_horizontal) {
-        // horizontal
         //    0,   0,    0
         // -1/2,   0,  1/2
         //    0,   0,    0
         filter[3] = -0.5;
         filter[4] =  0.5;
     } else {
-        // vertical
         //  0, -1/2, 0
         //  0,  0,   0
         //  0,  1/2, 0
@@ -248,7 +314,7 @@ cimg_t *diff_filter(cimg_t *src, bool is_horizontal)
         filter[4] =  0.5;
     }
 
-    return filtering(src, filter, 3, 3, kernel_sum);
+    return filtering(src, filter, 3, 3, kernel_conv);
 }
 
 cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
@@ -264,7 +330,6 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
 
     double filter[3 * 3] = { 0 };
     if (is_horizontal) {
-        // horizontal
         //  1   0  -1
         //  2   0  -2
         //  1   0  -1
@@ -275,7 +340,6 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
         filter[5] = -2;
         filter[8] = -1;
     } else {
-        // vertical
         //  1   2   1
         //  0   0   0
         // -1  -2  -1
@@ -287,7 +351,7 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
         filter[8] = -1;
     }
 
-    return filtering(src, filter, 3, 3, kernel_sum);
+    return filtering(src, filter, 3, 3, kernel_conv);
 }
 
 cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
@@ -303,7 +367,6 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
 
     double filter[3 * 3] = { 0 };
     if (is_horizontal) {
-        // horizontal
         // -1   0   1
         // -1   0   1
         // -1   0   1
@@ -314,7 +377,6 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
         filter[5] =  1;
         filter[8] =  1;
     } else {
-        // vertical
         // -1  -1  -1
         //  0   0   0
         //  1   1   1
@@ -326,7 +388,7 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
         filter[8] =  1;
     }
 
-    return filtering(src, filter, 3, 3, kernel_sum);
+    return filtering(src, filter, 3, 3, kernel_conv);
 }
 
 cimg_t *laplacian_filter(cimg_t *src)
@@ -346,7 +408,7 @@ cimg_t *laplacian_filter(cimg_t *src)
          0,  1,  0
     };
 
-    return filtering(src, filter, 3, 3, kernel_sum);
+    return filtering(src, filter, 3, 3, kernel_conv);
 }
 
 cimg_t *emboss_filter(cimg_t *src)
@@ -366,7 +428,7 @@ cimg_t *emboss_filter(cimg_t *src)
          0,  1,  2
     };
 
-    return filtering(src, filter, 3, 3, kernel_sum);
+    return filtering(src, filter, 3, 3, kernel_conv);
 }
 
 cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
@@ -380,12 +442,8 @@ cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
         return NULL;
     }
 
-    // create filter
+    // craete gaussian kernel
     double filter[filter_w * filter_h];
-
-    double sigma_p2 = sigma * sigma;
-
-    double c = 1 / (2 * M_PI * pow(sigma, 6));
 
     int ofs_x = filter_w / 2;
     int ofs_y = filter_h / 2;
@@ -396,7 +454,9 @@ cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
     for (int y = 0; y < filter_h; y++) {
         int kx = -ofs_x;
         for (int x = 0; x < filter_w; x++) {
-            filter[y * filter_w + x] = c * (kx * kx + ky * ky - 2 * sigma_p2)  * exp(-(kx * kx  + ky * ky) / (2 * sigma_p2));
+            filter[y * filter_w + x] = (1 / (2 * M_PI * pow(sigma, 6))) *
+                                       (kx * kx + ky * ky - 2 * sigma * sigma)  *
+                                       exp(-(kx * kx  + ky * ky) / (2 * sigma * sigma));
             sum += filter[y * filter_w + x];
             kx++;
         }
@@ -407,5 +467,5 @@ cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
         filter[i] /= sum;
     }
 
-    return filtering(src, filter, filter_w, filter_h, kernel_sum);
+    return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
