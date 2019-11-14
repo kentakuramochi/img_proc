@@ -1,238 +1,93 @@
+///
+/// @file   sample_filter.c
+/// @brief  sample of filtering
+/// @author kentakuramochi
+///
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "convert.h"
 #include "filter.h"
 #include "pnm.h"
 
-const char usage[] = "\
-USAGE\n\
-    ./sample_filter src_pnm_file [--compress]\n\
-OPTIONS\n\
-    --compress: use binary format (P4/P5/P6) for output\n\
-                ASCII format (P1/P2/P3) is used as default\n";
-
-PNM_FORMAT fmt = PNM_FORMAT_ASCII;
-
-void test_gaussian_filter(cimg_t *src, const char *dst_file, int kernel_size, double stddev)
+int main(int argc, char *argv[])
 {
-    cimg_t *dst = gaussian_filter(src, kernel_size, kernel_size, stddev);
-
-    write_pnm(dst, dst_file, fmt);
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_median_filter(cimg_t *src, const char *dst_file, int kernel_size)
-{
-    cimg_t *dst = median_filter(src, kernel_size, kernel_size);
-
-    write_pnm(dst, dst_file, fmt);
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_average_filter(cimg_t *src, const char *dst_file, int kernel_size)
-{
-    cimg_t *dst = average_filter(src, kernel_size, kernel_size);
-
-    write_pnm(dst, dst_file, fmt);
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_motion_filter(cimg_t *src, const char *dst_file, int kernel_size)
-{
-    cimg_t *dst = motion_filter(src, kernel_size, kernel_size);
-
-    write_pnm(dst, dst_file, fmt);
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_maxmin_filter(cimg_t *src, const char *dst_file, int kernel_size)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = maxmin_filter(gray, kernel_size, kernel_size);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_diff_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = diff_filter(gray, is_horizontal);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_sobel_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = sobel_filter(gray, is_horizontal);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_prewitt_filter(cimg_t *src, const char *dst_file, bool is_horizontal)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = prewitt_filter(gray, is_horizontal);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_laplacian_filter(cimg_t *src, const char *dst_file)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = laplacian_filter(gray);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_emboss_filter(cimg_t *src, const char *dst_file)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = emboss_filter(gray);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-void test_log_filter(cimg_t *src, const char *dst_file, int kernel_size, double sigma)
-{
-    // get grayscale image
-    cimg_t *gray = (src->channels != CH_GRAY) ? rgb_to_gray(src) : src;
-
-    cimg_t *dst = log_filter(gray, kernel_size, kernel_size, sigma);
-
-    write_pnm(dst, dst_file, fmt);
-
-    if (src->channels != CH_GRAY) {
-        cimg_delete(gray);
-    }
-
-    cimg_delete(dst);
-
-    return;
-}
-
-int verify_args(int argc, char *argv[])
-{
-    if ((argc < 2) || (argc > 3)) {
-        printf("%s", usage);
+    if (argc < 2) {
+        printf("error: specify PNM image\n");
         return 1;
     }
 
-    if (argc == 3) {
-        if (strcmp(argv[2], "--compress") == 0) {
-            fmt = PNM_FORMAT_BINARY;
-        } else {
-            printf("error: invalid option \"%s\"\n", argv[2]);
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-int main(int argc, char *argv[])
-{
-    if (verify_args(argc, argv)) {
-        exit(EXIT_FAILURE);
-    }
-
     cimg_t *src = read_pnm(argv[1]);
-
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
-    test_gaussian_filter(src, "gaussian_3x3.ppm", 3, 1.3);
-    test_median_filter(src, "median_3x3.ppm", 3);
-    test_average_filter(src, "average_3x3.ppm", 3);
-    test_motion_filter(src, "motion_3x3.ppm", 3);
-    test_maxmin_filter(src, "maxmin_3x3.pgm", 3);
-    test_diff_filter(src, "diff_h.pgm", true);
-    test_diff_filter(src, "diff_v.pgm", false);
-    test_sobel_filter(src, "sobel_h.pgm", true);
-    test_sobel_filter(src, "sobel_v.pgm", false);
-    test_prewitt_filter(src, "prewitt_h.pgm", true);
-    test_prewitt_filter(src, "prewitt_v.pgm", false);
-    test_laplacian_filter(src, "laplacian.pgm");
-    test_emboss_filter(src, "emboss.pgm");
-    test_log_filter(src, "log_5x5.pgm", 5, 3);
+    PNM_FORMAT fmt = PNM_FORMAT_ASCII;
+
+    cimg_t *dst;
+
+    dst = gaussian_filter(src, 3, 3, 1.3);
+    write_pnm(dst, "gaussian_3x3_s1.3.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = median_filter(src, 3, 3);
+    write_pnm(dst, "median_3x3.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = average_filter(src, 3, 3);
+    write_pnm(dst, "average_3x3.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = motion_filter(src, 3, 3);
+    write_pnm(dst, "motion_3x3.ppm", fmt);
+    cimg_delete(dst);
+
+    cimg_t *gray = rgb_to_gray(src);
+
+    dst = maxmin_filter(gray, 3, 3);
+    write_pnm(dst, "maxmin_3x3.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = diff_filter(gray, true);
+    write_pnm(dst, "diff_h.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = diff_filter(gray, false);
+    write_pnm(dst, "diff_v.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = sobel_filter(gray, true);
+    write_pnm(dst, "diff_h.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = sobel_filter(gray, false);
+    write_pnm(dst, "diff_v.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = prewitt_filter(gray, true);
+    write_pnm(dst, "prewitt_h.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = prewitt_filter(gray, false);
+    write_pnm(dst, "prewitt_v.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = laplacian_filter(gray);
+    write_pnm(dst, "laplacian.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = emboss_filter(gray);
+    write_pnm(dst, "emboss.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = log_filter(gray, 5, 5, 3);
+    write_pnm(dst, "log_5x5_s3.ppm", fmt);
+    cimg_delete(dst);
 
     cimg_delete(src);
+    cimg_delete(gray);
 
     return 0;
 }
