@@ -59,6 +59,13 @@ cimg_t *cimg_clone(cimg_t *img);
 void cimg_delete(cimg_t *img);
 
 ///
+/// @def    CIMG_GETELEM
+/// @brief  get specified elemet of image structure
+/// @note   no range check
+///
+#define CIMG_GETELEM(img, x, y, ch) ((img)->data[(y) * (img)->stride + (x) * (img)->channels + (ch)])
+
+///
 /// @fn     cimg_getelem
 /// @brief  get specified element of image structure
 /// @param  img [in]    pointer to target image structure
