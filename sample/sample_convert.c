@@ -65,6 +65,10 @@ int main(int argc, char *argv[])
     write_pnm(dst, "eqhist.ppm", fmt);
     cimg_delete(dst);
 
+    dst = gamma_correction(src, 2.2);
+    write_pnm(dst, "gamma_2.2.ppm", fmt);
+    cimg_delete(dst);
+
     cimg_delete(src);
 
     cimg_delete(gray);

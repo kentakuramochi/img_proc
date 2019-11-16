@@ -256,3 +256,15 @@ cimg_t *equalize_hist(cimg_t *src)
 
     return dst;
 }
+
+cimg_t *gamma_correction(cimg_t *src, double gamma)
+{
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+
+    for (int i = 0; i < (src->height * src->width * src->channels); i++) {
+        double norm = (double)src->data[i] / UINT8_MAX;
+        dst->data[i] = (uint8_t)(pow(norm, (1 / gamma)) * UINT8_MAX);
+    }
+
+    return dst;
+}

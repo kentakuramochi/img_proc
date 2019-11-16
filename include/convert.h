@@ -59,6 +59,7 @@ void get_hist(cimg_t *src, int histogram[256], int bin);
 /// @param  src [in]    pointer to source image
 /// @param  min [in]    min value of histogram range
 /// @param  max [in]    max value of histogram range
+/// @return pointer to processed image, NULL if failed
 ///
 cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max);
 
@@ -68,6 +69,7 @@ cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max);
 /// @param  src     [in]    pointer to source image
 /// @param  mean    [in]    mean of normalized histogram
 /// @param  sigma   [in]    stddev of normalized histogram
+/// @return pointer to processed image, NULL if failed
 ///
 cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma);
 
@@ -75,7 +77,17 @@ cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma);
 /// @fn     equalize_hist 
 /// @brief  equalize histogram
 /// @param  src [in]    pointer to source image
+/// @return pointer to processed image, NULL if failed
 ///
 cimg_t *equalize_hist(cimg_t *src);
+
+///
+/// @fn     gamma_correction
+/// @brief  adopt gamma correction
+/// @param  src     [in]    pointer to source image
+/// @param  gamma   [in]    gamma value of target
+/// @return pointer to processed image, NULL if failed
+///
+cimg_t *gamma_correction(cimg_t *src, double gamma);
 
 #endif // CONVERT_H
