@@ -53,4 +53,29 @@ cimg_t *quantize(cimg_t *src, uint8_t level);
 ///
 void get_hist(cimg_t *src, int histogram[256], int bin);
 
+///
+/// @fn     expand_hist 
+/// @brief  expand histogram
+/// @param  src [in]    pointer to source image
+/// @param  min [in]    min value of histogram range
+/// @param  max [in]    max value of histogram range
+///
+cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max);
+
+///
+/// @fn     normarize_hist
+/// @brief  normalize histogram with mean and stddev (sigma)
+/// @param  src     [in]    pointer to source image
+/// @param  mean    [in]    mean of normalized histogram
+/// @param  sigma   [in]    stddev of normalized histogram
+///
+cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma);
+
+///
+/// @fn     equalize_hist 
+/// @brief  equalize histogram
+/// @param  src [in]    pointer to source image
+///
+cimg_t *equalize_hist(cimg_t *src);
+
 #endif // CONVERT_H

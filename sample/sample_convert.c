@@ -53,6 +53,18 @@ int main(int argc, char *argv[])
     }
     fclose(fp);
 
+    dst = expand_hist(src, 20, 200);
+    write_pnm(dst, "normhist_20-200.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = normarize_hist(src, 128, 52);
+    write_pnm(dst, "normhist_m128-s52.ppm", fmt);
+    cimg_delete(dst);
+
+    dst = equalize_hist(src);
+    write_pnm(dst, "eqhist.ppm", fmt);
+    cimg_delete(dst);
+
     cimg_delete(src);
 
     cimg_delete(gray);

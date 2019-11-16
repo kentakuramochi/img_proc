@@ -7,6 +7,7 @@
 #include "convert.h"
 
 #include <stddef.h>
+#include <math.h>
 
 /// @fn     rgb_to_y_BT601
 /// @brief  convert RGB to Y of YUV by ITU-R BT.601
@@ -166,4 +167,92 @@ void get_hist(cimg_t *src, int histogram[256], int bin)
         }
         histogram[i] = histogram[bin_s];
     }
+}
+
+cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max)
+{
+    const int size = src->height * src->width * src->channels;
+
+    uint8_t hist_max = 0;
+    uint8_t hist_min = UINT8_MAX;
+    for (int i = 0; i < size; i++) {
+        uint8_t pixel = src->data[i];
+        hist_max = (pixel > hist_max) ? pixel : hist_max;
+        hist_min = (pixel < hist_min) ? pixel : hist_min;
+    }
+
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+
+    double scale = (double)(max - min) / (hist_max - hist_min);
+
+    for (int i = 0; i < size; i++) {
+        uint8_t pixel = src->data[i];
+        uint8_t norm;
+        if (pixel < hist_min){
+            norm = min;
+        } else if (pixel < hist_max) {
+            norm = (uint8_t)(scale * (pixel - hist_min) + min);
+        } else {
+            norm = max;
+        }
+        dst->data[i] = norm;
+    }
+
+    return dst;
+}
+
+cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma)
+{
+    const int size = src->height * src->width * src->channels;
+
+    int hist_mean = 0;
+    for (int i = 0; i < size; i++) {
+        hist_mean += src->data[i];
+    }
+    hist_mean /= size;
+
+    double hist_sigma = 0;
+    for (int i = 0; i < size; i++) {
+        hist_sigma += (src->data[i] - hist_mean) * (src->data[i] - hist_mean);
+    }
+    hist_sigma /= size;
+
+    hist_sigma = sqrt(hist_sigma);
+
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+
+    double scale = sigma / hist_sigma;
+
+    for (int i = 0; i < size; i++) {
+        dst->data[i] = (uint8_t)(scale * (src->data[i] - hist_mean) + mean);
+    }
+
+    return dst;
+}
+
+cimg_t *equalize_hist(cimg_t *src)
+{
+    const int size = src->height * src->width * src->channels;
+
+    int histogram[256] = { 0 };
+    uint8_t max = 0;
+    for (int i = 0; i < size; i++) {
+        uint8_t pixel = src->data[i];
+        histogram[pixel]++;
+        max = (pixel > max) ? pixel : max;
+    }
+
+    double scale = (double)max / size;
+
+    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+
+    for (int i = 0; i < size; i++) {
+        int sum_freq = 0;
+        for (int j = 0; j < src->data[i]; j++) {
+            sum_freq += histogram[j];
+        }
+        dst->data[i] = (uint8_t)(scale * sum_freq);
+    }
+
+    return dst;
 }
