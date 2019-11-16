@@ -28,9 +28,9 @@ SAMPS    := $(addprefix $(BUILDDIR)/$(TYPE)/,$(SAMPSRCS:.c=))
 AR := ar rcs
 RM := rm -rf
 
-.PHONY: all test clean
+.PHONY: all sample clean
 
-all: test
+all: sample
 
 -include $(DEPS)
 
@@ -41,7 +41,9 @@ $(BUILDDIR)/$(TYPE)/%.o: %.c
 	@mkdir -p $(BUILDDIR)/$(TYPE)/$(SRCDIR)
 	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
 
-test: $(LIB) $(SAMPS)
+sample: $(SAMPS)
+
+$(SAMPS): $(LIB)
 
 $(BUILDDIR)/$(TYPE)/$(SAMPDIR)/%: $(SAMPDIR)/%.c
 	@mkdir -p $(BUILDDIR)/$(TYPE)/$(SAMPDIR)
