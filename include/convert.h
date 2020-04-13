@@ -90,4 +90,14 @@ cimg_t *equalize_hist(cimg_t *src);
 ///
 cimg_t *gamma_correction(cimg_t *src, double gamma);
 
+///
+/// @fn     nearest_neighbor
+/// @brief  expand image with nearest neighbor interpolation
+/// @param  src     [in]    pointer to source image
+/// @param  scale_x [in]    scale ratio for x direction
+/// @param  scale_y [in]    scale ratio for y direction
+/// @return pointer to expanded image, NULL if failed
+///
+cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y);
+
 #endif // CONVERT_H

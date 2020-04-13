@@ -69,6 +69,10 @@ int main(int argc, char *argv[])
     write_pnm(dst, "gamma_2.2.ppm", fmt);
     cimg_delete(dst);
 
+    dst = nearest_neighbor(src, 1.5, 1.5);
+    write_pnm(dst, "nearest_x1.5.ppm", fmt);
+    cimg_delete(dst);
+
     cimg_delete(src);
 
     cimg_delete(gray);

@@ -268,3 +268,19 @@ cimg_t *gamma_correction(cimg_t *src, double gamma)
 
     return dst;
 }
+
+cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y)
+{
+    cimg_t *dst = cimg_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
+
+    for (int y = 0; y < dst->height; y++) {
+        for (int x = 0; x < dst->width; x++) {
+            for (int c = 0; c < dst->channels; c++) {
+                dst->data[y * dst->stride + x * dst->channels + c] = 
+                    src->data[(int)round(y / scale_y) * src->stride + (int)round(x / scale_x) * src->channels + c];
+            }
+        }
+    }
+
+    return dst;
+}
