@@ -73,6 +73,10 @@ int main(int argc, char *argv[])
     write_pnm(dst, "nearest_x1.5.ppm", fmt);
     cimg_delete(dst);
 
+    dst = bilinear(src, 1.5, 1.5);
+    write_pnm(dst, "bilnear_x1.5.ppm", fmt);
+    cimg_delete(dst);
+
     cimg_delete(src);
 
     cimg_delete(gray);
