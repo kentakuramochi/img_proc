@@ -77,6 +77,10 @@ int main(int argc, char *argv[])
     write_pnm(dst, "bilnear_x1.5.ppm", fmt);
     cimg_delete(dst);
 
+    dst = biqubic(src, 1.5, 1.5);
+    write_pnm(dst, "biqubic_x1.5.ppm", fmt);
+    cimg_delete(dst);
+
     cimg_delete(src);
 
     cimg_delete(gray);
