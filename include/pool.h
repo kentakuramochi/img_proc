@@ -7,7 +7,7 @@
 #ifndef POOL_H
 #define POOL_H
 
-#include "cimg.h"
+#include "img.h"
 
 ///
 /// @fn     average_pooling
@@ -17,7 +17,7 @@
 /// @param  kernel_h    [in]    pooling kernel height
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *average_pooling(cimg_t *src, int kernel_w, int kernel_h);
+img_t *average_pooling(img_t *src, int kernel_w, int kernel_h);
 
 ///
 /// @fn     max_pooling
@@ -27,6 +27,6 @@ cimg_t *average_pooling(cimg_t *src, int kernel_w, int kernel_h);
 /// @param  kernel_h    [in]    pooling kernel height
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *max_pooling(cimg_t *src, int kernel_w, int kernel_h);
+img_t *max_pooling(img_t *src, int kernel_w, int kernel_h);
 
 #endif // POOL_H

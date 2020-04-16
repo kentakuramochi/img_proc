@@ -1,22 +1,22 @@
 ///
-/// @file   cimg.h
+/// @file   img.h
 /// @brief  base image structure
 /// @author kentakuramochi
 ///
 
-#include "cimg.h"
+#include "img.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-cimg_t *cimg_create(int width, int height, int channels)
+img_t *img_create(int width, int height, int channels)
 {
     if ((width <= 0) || (height <= 0) || (channels <= 0)) {
         return NULL;
     }
 
-    cimg_t *img = (cimg_t*)malloc(sizeof(cimg_t));
+    img_t *img = (img_t*)malloc(sizeof(img_t));
     if (img == NULL) {
         return NULL;
     }
@@ -37,9 +37,9 @@ cimg_t *cimg_create(int width, int height, int channels)
     return img;
 }
 
-cimg_t *cimg_clone(cimg_t *img)
+img_t *img_clone(img_t *img)
 {
-    cimg_t *dst = cimg_create(img->width, img->height, img->channels);
+    img_t *dst = img_create(img->width, img->height, img->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -49,7 +49,7 @@ cimg_t *cimg_clone(cimg_t *img)
     return dst;
 }
 
-void cimg_delete(cimg_t *img)
+void img_delete(img_t *img)
 {
     if (img == NULL) {
         return;

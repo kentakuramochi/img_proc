@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    cimg_t *src = read_pnm(argv[1]);
+    img_t *src = read_pnm(argv[1]);
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
         exit(EXIT_FAILURE);
@@ -26,17 +26,17 @@ int main(int argc, char *argv[])
 
     PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-    cimg_t *dst;
+    img_t *dst;
     
     dst = average_pooling(src, 8, 8);
     write_pnm(dst, "avgpool_8x8.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = max_pooling(src, 8, 8);
     write_pnm(dst, "maxpool_8x8.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
-    cimg_delete(src);
+    img_delete(src);
 
     return 0;
 }

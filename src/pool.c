@@ -13,7 +13,7 @@
 /// @typedef    pool_kernel
 /// @brief      pooling kernel function
 ///
-typedef uint8_t (*pool_kernel)(cimg_t*, int, int, int, int, int);
+typedef uint8_t (*pool_kernel)(img_t*, int, int, int, int, int);
 
 ///
 /// @fn     kernel_avg
@@ -26,7 +26,7 @@ typedef uint8_t (*pool_kernel)(cimg_t*, int, int, int, int, int);
 /// @param  kh  [in]    kernel height
 /// @return average in kernel
 ///
-static uint8_t kernel_avg(cimg_t *img, int x, int y, int c, int kw, int kh)
+static uint8_t kernel_avg(img_t *img, int x, int y, int c, int kw, int kh)
 {
     int avg = 0;
     for (int i = 0; i < kh; i++) {
@@ -48,7 +48,7 @@ static uint8_t kernel_avg(cimg_t *img, int x, int y, int c, int kw, int kh)
 /// @param  kh  [in]    kernel height
 /// @return max value in kernel
 ///
-static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
+static uint8_t kernel_max(img_t *img, int x, int y, int c, int kw, int kh)
 {
     int max = 0;
     for (int i = 0; i < kh; i++) {
@@ -69,9 +69,9 @@ static uint8_t kernel_max(cimg_t *img, int x, int y, int c, int kw, int kh)
 /// @param  kernel      [in]    kernel function
 /// @return pointer to processed image, NULL if failed
 ///
-static cimg_t *pooling(cimg_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
+static img_t *pooling(img_t *src, int kernel_w, int kernel_h, pool_kernel kernel)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -92,7 +92,7 @@ static cimg_t *pooling(cimg_t *src, int kernel_w, int kernel_h, pool_kernel kern
     return dst;
 }
 
-cimg_t *average_pooling(cimg_t *src, int kernel_w, int kernel_h)
+img_t *average_pooling(img_t *src, int kernel_w, int kernel_h)
 {
     if ((kernel_w <= 0) || (kernel_h <= 0)) {
         return NULL;
@@ -101,7 +101,7 @@ cimg_t *average_pooling(cimg_t *src, int kernel_w, int kernel_h)
     return pooling(src, kernel_w, kernel_h, kernel_avg);
 }
 
-cimg_t *max_pooling(cimg_t *src, int kernel_w, int kernel_h)
+img_t *max_pooling(img_t *src, int kernel_w, int kernel_h)
 {
     if ((kernel_w <= 0) || (kernel_h <= 0)) {
         return NULL;

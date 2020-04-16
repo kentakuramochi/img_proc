@@ -21,7 +21,7 @@
 /// @typedef    filter_kernel
 /// @brief      kernel functions
 ///
-typedef uint8_t (*filter_kernel)(cimg_t*, int, int, int, double*, int, int);
+typedef uint8_t (*filter_kernel)(img_t*, int, int, int, double*, int, int);
 
 ///
 /// @fn     kernel_conv
@@ -35,7 +35,7 @@ typedef uint8_t (*filter_kernel)(cimg_t*, int, int, int, double*, int, int);
 /// @param  kh      [in]    kernel height
 /// @return convolutional value in kernel
 ///
-static uint8_t kernel_conv(cimg_t *img, int x, int y, int c, double *kernel, int kw, int kh)
+static uint8_t kernel_conv(img_t *img, int x, int y, int c, double *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -84,7 +84,7 @@ static int cmp_ascend(const void *a, const void *b)
 /// @param  kh      [in]    kernel height
 /// @return median in kernel
 ///
-static uint8_t kernel_median(cimg_t *img, int x, int y, int c, uint8_t *kernel, int kw, int kh)
+static uint8_t kernel_median(img_t *img, int x, int y, int c, uint8_t *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -124,7 +124,7 @@ static uint8_t kernel_median(cimg_t *img, int x, int y, int c, uint8_t *kernel, 
 /// @param  kh      [in]    kernel height
 /// @return median in kernel
 ///
-static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *kernel, int kw, int kh)
+static uint8_t kernel_maxmin(img_t *img, int x, int y, int c, double *kernel, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -159,9 +159,9 @@ static uint8_t kernel_maxmin(cimg_t *img, int x, int y, int c, double *kernel, i
 /// @param  kernel      [in]    kernel function
 /// @return pointer to processed image, NULL if failed
 ///
-static cimg_t *filtering(cimg_t *src, double *filter, int filter_w, int filter_h, filter_kernel kernel)
+static img_t *filtering(img_t *src, double *filter, int filter_w, int filter_h, filter_kernel kernel)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -177,7 +177,7 @@ static cimg_t *filtering(cimg_t *src, double *filter, int filter_w, int filter_h
     return dst;
 }
 
-cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
+img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma)
 {
     // create gaussian kernel
     double filter[filter_w * filter_h];
@@ -205,9 +205,9 @@ cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
     return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
-cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
+img_t *median_filter(img_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -226,9 +226,9 @@ cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h)
     return dst;
 }
 
-cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h)
+img_t *average_filter(img_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -245,9 +245,9 @@ cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h)
     return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
-cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h)
+img_t *motion_filter(img_t *src, int filter_w, int filter_h)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -265,13 +265,13 @@ cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h)
     return filtering(src, filter, filter_w, filter_h, kernel_conv);
 }
 
-cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h)
+img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -287,13 +287,13 @@ cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h)
     return dst;
 }
 
-cimg_t *diff_filter(cimg_t *src, bool is_horizontal)
+img_t *diff_filter(img_t *src, bool is_horizontal)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -317,13 +317,13 @@ cimg_t *diff_filter(cimg_t *src, bool is_horizontal)
     return filtering(src, filter, 3, 3, kernel_conv);
 }
 
-cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
+img_t *sobel_filter(img_t *src, bool is_horizontal)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -354,13 +354,13 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal)
     return filtering(src, filter, 3, 3, kernel_conv);
 }
 
-cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
+img_t *prewitt_filter(img_t *src, bool is_horizontal)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -391,13 +391,13 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal)
     return filtering(src, filter, 3, 3, kernel_conv);
 }
 
-cimg_t *laplacian_filter(cimg_t *src)
+img_t *laplacian_filter(img_t *src)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -411,13 +411,13 @@ cimg_t *laplacian_filter(cimg_t *src)
     return filtering(src, filter, 3, 3, kernel_conv);
 }
 
-cimg_t *emboss_filter(cimg_t *src)
+img_t *emboss_filter(img_t *src)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -431,13 +431,13 @@ cimg_t *emboss_filter(cimg_t *src)
     return filtering(src, filter, 3, 3, kernel_conv);
 }
 
-cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma)
+img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma)
 {
     if (src->channels != CH_GRAY) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }

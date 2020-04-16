@@ -7,7 +7,7 @@
 #ifndef CONVERT_H
 #define CONVERT_H
 
-#include "cimg.h"
+#include "img.h"
 
 ///
 /// @fn     rgb_to_gray
@@ -15,7 +15,7 @@
 /// @param  src [in]   pointer to source RGB image
 /// @return pointer to grayscale image, NULL if failed
 ///
-cimg_t *rgb_to_gray(cimg_t *src);
+img_t *rgb_to_gray(img_t *src);
 
 ///
 /// @fn     binarize
@@ -24,7 +24,7 @@ cimg_t *rgb_to_gray(cimg_t *src);
 /// @param  threshold   [in]   binarize threshold [0, 255]
 /// @return pointer to binary image, NULL if failed
 ///
-cimg_t *binarize(cimg_t *src, uint8_t threshold);
+img_t *binarize(img_t *src, uint8_t threshold);
 
 ///
 /// @fn     binarize
@@ -32,7 +32,7 @@ cimg_t *binarize(cimg_t *src, uint8_t threshold);
 /// @param  src         [in]   pointer to source grayscale image
 /// @return pointer to binary image, NULL if failed
 ///
-cimg_t *binarize_otsu(cimg_t *src);
+img_t *binarize_otsu(img_t *src);
 
 ///
 /// @fn     quantize
@@ -41,7 +41,7 @@ cimg_t *binarize_otsu(cimg_t *src);
 /// @param  level       [in]   quantization level [1, 256]
 /// @return pointer to quantized image, NULL if failed
 ///
-cimg_t *quantize(cimg_t *src, uint8_t level);
+img_t *quantize(img_t *src, uint8_t level);
 
 ///
 /// @fn     get_hist
@@ -51,7 +51,7 @@ cimg_t *quantize(cimg_t *src, uint8_t level);
 /// @param  bin         [in]    num of bins of histogram
 /// @note   length of histogram must be 256
 ///
-void get_hist(cimg_t *src, int histogram[256], int bin);
+void get_hist(img_t *src, int histogram[256], int bin);
 
 ///
 /// @fn     expand_hist 
@@ -61,7 +61,7 @@ void get_hist(cimg_t *src, int histogram[256], int bin);
 /// @param  max [in]    max value of histogram range
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max);
+img_t *expand_hist(img_t *src, uint8_t min, uint8_t max);
 
 ///
 /// @fn     normarize_hist
@@ -71,7 +71,7 @@ cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max);
 /// @param  sigma   [in]    stddev of normalized histogram
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma);
+img_t *normarize_hist(img_t *src, uint8_t mean, double sigma);
 
 ///
 /// @fn     equalize_hist 
@@ -79,7 +79,7 @@ cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma);
 /// @param  src [in]    pointer to source image
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *equalize_hist(cimg_t *src);
+img_t *equalize_hist(img_t *src);
 
 ///
 /// @fn     gamma_correction
@@ -88,7 +88,7 @@ cimg_t *equalize_hist(cimg_t *src);
 /// @param  gamma   [in]    gamma value of target
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *gamma_correction(cimg_t *src, double gamma);
+img_t *gamma_correction(img_t *src, double gamma);
 
 ///
 /// @fn     nearest_neighbor
@@ -98,7 +98,7 @@ cimg_t *gamma_correction(cimg_t *src, double gamma);
 /// @param  scale_y [in]    scale ratio for y direction
 /// @return pointer to expanded image, NULL if failed
 ///
-cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y);
+img_t *nearest_neighbor(img_t *src, double scale_x, double scale_y);
 
 ///
 /// @fn     bilinear
@@ -108,7 +108,7 @@ cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y);
 /// @param  scale_y [in]    scale ratio for y direction
 /// @return pointer to expanded image, NULL if failed
 ///
-cimg_t *bilinear(cimg_t *src, double scale_x, double scale_y);
+img_t *bilinear(img_t *src, double scale_x, double scale_y);
 
 ///
 /// @fn     biqubic
@@ -118,6 +118,6 @@ cimg_t *bilinear(cimg_t *src, double scale_x, double scale_y);
 /// @param  scale_y [in]    scale ratio for y direction
 /// @return pointer to expanded image, NULL if failed
 ///
-cimg_t *biqubic(cimg_t *src, double scale_x, double scale_y);
+img_t *biqubic(img_t *src, double scale_x, double scale_y);
 
 #endif // CONVERT_H

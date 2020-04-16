@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    cimg_t *src = read_pnm(argv[1]);
+    img_t *src = read_pnm(argv[1]);
     if (src == NULL) {
         printf("error: failed to read \"%s\"\n", argv[1]);
         exit(EXIT_FAILURE);
@@ -25,24 +25,24 @@ int main(int argc, char *argv[])
 
     PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
-    cimg_t *gray;
+    img_t *gray;
 
     gray = rgb_to_gray(src);
     write_pnm(gray, "gray.pgm", fmt);
 
-    cimg_t *dst;
+    img_t *dst;
 
     dst = binarize(src, 100);
     write_pnm(dst, "bin_100.pgm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = binarize_otsu(src);
     write_pnm(dst, "bin_otsu.pgm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = quantize(src, 8);
     write_pnm(dst, "quant_8.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     int histogram[256];
     get_hist(gray, histogram, 8);
@@ -55,35 +55,35 @@ int main(int argc, char *argv[])
 
     dst = expand_hist(src, 20, 200);
     write_pnm(dst, "normhist_20-200.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = normarize_hist(src, 128, 52);
     write_pnm(dst, "normhist_m128-s52.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = equalize_hist(src);
     write_pnm(dst, "eqhist.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = gamma_correction(src, 2.2);
     write_pnm(dst, "gamma_2.2.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = nearest_neighbor(src, 1.5, 1.5);
     write_pnm(dst, "nearest_x1.5.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = bilinear(src, 1.5, 1.5);
     write_pnm(dst, "bilnear_x1.5.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
     dst = biqubic(src, 1.5, 1.5);
     write_pnm(dst, "biqubic_x1.5.ppm", fmt);
-    cimg_delete(dst);
+    img_delete(dst);
 
-    cimg_delete(src);
+    img_delete(src);
 
-    cimg_delete(gray);
+    img_delete(gray);
 
     return 0;
 }

@@ -7,7 +7,7 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "cimg.h"
+#include "img.h"
 
 #include <stdbool.h>
 
@@ -20,7 +20,7 @@
 /// @param  sigma       [in]    stddev of gaussian kernel
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma);
+img_t *gaussian_filter(img_t *src, int filter_w, int filter_h, double sigma);
 
 ///
 /// @fn     median_filter 
@@ -30,7 +30,7 @@ cimg_t *gaussian_filter(cimg_t *src, int filter_w, int filter_h, double sigma);
 /// @param  filter_h    [in]    filter kernel height
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h);
+img_t *median_filter(img_t *src, int filter_w, int filter_h);
 
 ///
 /// @fn     average_filter 
@@ -40,7 +40,7 @@ cimg_t *median_filter(cimg_t *src, int filter_w, int filter_h);
 /// @param  filter_h    [in]    filter kernel height
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h);
+img_t *average_filter(img_t *src, int filter_w, int filter_h);
 
 ///
 /// @fn     motion_filter 
@@ -50,7 +50,7 @@ cimg_t *average_filter(cimg_t *src, int filter_w, int filter_h);
 /// @param  filter_h    [in]    filter kernel height
 /// @return pointer to processed image, NULL if failed
 ///
-cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h);
+img_t *motion_filter(img_t *src, int filter_w, int filter_h);
 
 ///
 /// @fn     maxmin_filter 
@@ -61,7 +61,7 @@ cimg_t *motion_filter(cimg_t *src, int filter_w, int filter_h);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h);
+img_t *maxmin_filter(img_t *src, int filter_w, int filter_h);
 
 ///
 /// @fn     diff_filter 
@@ -73,7 +73,7 @@ cimg_t *maxmin_filter(cimg_t *src, int filter_w, int filter_h);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *diff_filter(cimg_t *src, bool is_horizontal);
+img_t *diff_filter(img_t *src, bool is_horizontal);
 
 ///
 /// @fn     sobel_filter 
@@ -85,7 +85,7 @@ cimg_t *diff_filter(cimg_t *src, bool is_horizontal);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *sobel_filter(cimg_t *src, bool is_horizontal);
+img_t *sobel_filter(img_t *src, bool is_horizontal);
 
 ///
 /// @fn     prewitt_filter 
@@ -97,7 +97,7 @@ cimg_t *sobel_filter(cimg_t *src, bool is_horizontal);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal);
+img_t *prewitt_filter(img_t *src, bool is_horizontal);
 
 ///
 /// @fn     laplacian_filter 
@@ -106,7 +106,7 @@ cimg_t *prewitt_filter(cimg_t *src, bool is_horizontal);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *laplacian_filter(cimg_t *src);
+img_t *laplacian_filter(img_t *src);
 
 ///
 /// @fn     emboss_filter 
@@ -115,7 +115,7 @@ cimg_t *laplacian_filter(cimg_t *src);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *emboss_filter(cimg_t *src);
+img_t *emboss_filter(img_t *src);
 
 ///
 /// @fn     log_filter 
@@ -127,6 +127,6 @@ cimg_t *emboss_filter(cimg_t *src);
 /// @return pointer to processed image, NULL if failed
 /// @note   only grayscale input is allowed
 ///
-cimg_t *log_filter(cimg_t *src, int filter_w, int filter_h, double sigma);
+img_t *log_filter(img_t *src, int filter_w, int filter_h, double sigma);
 
 #endif // FILTER_H

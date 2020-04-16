@@ -21,13 +21,13 @@ static inline uint8_t rgb_to_y_BT601(uint8_t r, uint8_t g, uint8_t b)
     return (uint8_t)(0.299 * r + 0.587 * g + 0.114 * b);
 }
 
-cimg_t *rgb_to_gray(cimg_t *src)
+img_t *rgb_to_gray(img_t *src)
 {
     if ((src == NULL) || (src->channels != CH_RGB)) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -42,13 +42,13 @@ cimg_t *rgb_to_gray(cimg_t *src)
     return dst;
 }
 
-cimg_t *binarize(cimg_t *src, uint8_t threshold)
+img_t *binarize(img_t *src, uint8_t threshold)
 {
     if ((src == NULL) || (src->channels != CH_GRAY)) {
         return NULL;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, CH_GRAY);
+    img_t *dst = img_create(src->width, src->height, CH_GRAY);
     if (dst == NULL) {
         return NULL;
     }
@@ -60,7 +60,7 @@ cimg_t *binarize(cimg_t *src, uint8_t threshold)
     return dst;
 }
 
-cimg_t *binarize_otsu(cimg_t *src)
+img_t *binarize_otsu(img_t *src)
 {
     int n_pix = src->width * src->height;
 
@@ -108,9 +108,9 @@ cimg_t *binarize_otsu(cimg_t *src)
     return binarize(src, threshold);
 }
 
-cimg_t *quantize(cimg_t *src, uint8_t level)
+img_t *quantize(img_t *src, uint8_t level)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
     if (dst == NULL) {
         return NULL;
     }
@@ -136,7 +136,7 @@ cimg_t *quantize(cimg_t *src, uint8_t level)
     return dst;
 }
 
-void get_hist(cimg_t *src, int histogram[256], int bin)
+void get_hist(img_t *src, int histogram[256], int bin)
 {
     for (int i = 0; i < 256; i++) {
         histogram[i] = 0;
@@ -169,7 +169,7 @@ void get_hist(cimg_t *src, int histogram[256], int bin)
     }
 }
 
-cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max)
+img_t *expand_hist(img_t *src, uint8_t min, uint8_t max)
 {
     const int size = src->height * src->width * src->channels;
 
@@ -181,7 +181,7 @@ cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max)
         hist_min = (pixel < hist_min) ? pixel : hist_min;
     }
 
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
 
     double scale = (double)(max - min) / (hist_max - hist_min);
 
@@ -201,7 +201,7 @@ cimg_t *expand_hist(cimg_t *src, uint8_t min, uint8_t max)
     return dst;
 }
 
-cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma)
+img_t *normarize_hist(img_t *src, uint8_t mean, double sigma)
 {
     const int size = src->height * src->width * src->channels;
 
@@ -219,7 +219,7 @@ cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma)
 
     hist_sigma = sqrt(hist_sigma);
 
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
 
     double scale = sigma / hist_sigma;
 
@@ -230,7 +230,7 @@ cimg_t *normarize_hist(cimg_t *src, uint8_t mean, double sigma)
     return dst;
 }
 
-cimg_t *equalize_hist(cimg_t *src)
+img_t *equalize_hist(img_t *src)
 {
     const int size = src->height * src->width * src->channels;
 
@@ -244,7 +244,7 @@ cimg_t *equalize_hist(cimg_t *src)
 
     double scale = (double)max / size;
 
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
 
     for (int i = 0; i < size; i++) {
         int sum_freq = 0;
@@ -257,9 +257,9 @@ cimg_t *equalize_hist(cimg_t *src)
     return dst;
 }
 
-cimg_t *gamma_correction(cimg_t *src, double gamma)
+img_t *gamma_correction(img_t *src, double gamma)
 {
-    cimg_t *dst = cimg_create(src->width, src->height, src->channels);
+    img_t *dst = img_create(src->width, src->height, src->channels);
 
     for (int i = 0; i < (src->height * src->width * src->channels); i++) {
         double norm = (double)src->data[i] / UINT8_MAX;
@@ -269,9 +269,9 @@ cimg_t *gamma_correction(cimg_t *src, double gamma)
     return dst;
 }
 
-cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y)
+img_t *nearest_neighbor(img_t *src, double scale_x, double scale_y)
 {
-    cimg_t *dst = cimg_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
+    img_t *dst = img_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
@@ -285,9 +285,9 @@ cimg_t *nearest_neighbor(cimg_t *src, double scale_x, double scale_y)
     return dst;
 }
 
-cimg_t *bilinear(cimg_t *src, double scale_x, double scale_y)
+img_t *bilinear(img_t *src, double scale_x, double scale_y)
 {
-    cimg_t *dst = cimg_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
+    img_t *dst = img_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
@@ -301,9 +301,9 @@ cimg_t *bilinear(cimg_t *src, double scale_x, double scale_y)
     return dst;
 }
 
-cimg_t *biqubic(cimg_t *src, double scale_x, double scale_y)
+img_t *biqubic(img_t *src, double scale_x, double scale_y)
 {
-    cimg_t *dst = cimg_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
+    img_t *dst = img_create((int)(scale_x * src->width), (int)(scale_y * src->height), src->channels);
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {

@@ -1,11 +1,11 @@
 ///
-/// @file   cimg.h
+/// @file   img.h
 /// @brief  base image structure
 /// @author kentakuramochi
 ///
 
-#ifndef CIMG_H
-#define CIMG_H
+#ifndef IMG_H
+#define IMG_H
 
 #include <stdint.h>
 
@@ -21,7 +21,7 @@ typedef enum {
 } CH_NUM;
 
 ///
-/// @struct cimg_t
+/// @struct img_t
 /// @brief  image structure (8bit per channel)
 ///
 typedef struct {
@@ -30,10 +30,10 @@ typedef struct {
     int     channels;   ///< number of channels
     int     stride;     ///< stride (byte size of a row)
     uint8_t *data;      ///< pixel data (row-major order, channel-interleaving)
-} cimg_t;
+} img_t;
 
 ///
-/// @fn     cimg_create
+/// @fn     img_create
 /// @brief  create new image structure
 /// @param  width    [in]   image width
 /// @param  height   [in]   image height
@@ -41,32 +41,32 @@ typedef struct {
 /// @return pointer to new image structure, NULL if failed
 /// @note   pixel value is indefinite
 ///
-cimg_t *cimg_create(int width, int height, int channels);
+img_t *img_create(int width, int height, int channels);
 
 ///
-/// @fn     cimg_clone
+/// @fn     img_clone
 /// @brief  clone image structure
 /// @param  img [in]    pointer of clone source image structure
 /// @return pointer to clone image structure, NULL if failed
 ///
-cimg_t *cimg_clone(cimg_t *img);
+img_t *img_clone(img_t *img);
 
 ///
-/// @fn     cimg_delete
+/// @fn     img_delete
 /// @brief  delete image structure
 /// @param  img [in]    pointer to image structure to be deleted
 ///
-void cimg_delete(cimg_t *img);
+void img_delete(img_t *img);
 
 ///
-/// @def    CIMG_GETELEM
+/// @def    IMG_GETELEM
 /// @brief  get specified elemet of image structure
 /// @note   no range check
 ///
-#define CIMG_GETELEM(img, x, y, ch) ((img)->data[(y) * (img)->stride + (x) * (img)->channels + (ch)])
+#define IMG_GETELEM(img, x, y, ch) ((img)->data[(y) * (img)->stride + (x) * (img)->channels + (ch)])
 
 ///
-/// @fn     cimg_getelem
+/// @fn     img_getelem
 /// @brief  get specified element of image structure
 /// @param  img [in]    pointer to target image structure
 /// @param  x   [in]    x coordinate [0, img->width)
@@ -74,7 +74,7 @@ void cimg_delete(cimg_t *img);
 /// @param  ch  [in]    channel no. [0, img->channels)
 /// @return value of specified element of target image structure, -1 if out of range
 ///
-inline int cimg_getelem(cimg_t *img, int x, int y, int ch)
+inline int img_getelem(img_t *img, int x, int y, int ch)
 {
     if ((x < 0)  || (x >= img->width)  ||
         (y < 0)  || (y >= img->height) ||
@@ -84,4 +84,4 @@ inline int cimg_getelem(cimg_t *img, int x, int y, int ch)
     return img->data[y * img->stride + x * img->channels + ch];
 }
 
-#endif // CIMG_H
+#endif // IMG_H

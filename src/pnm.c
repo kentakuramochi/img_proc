@@ -133,7 +133,7 @@ static int get_next_int(FILE *fp)
 /// @retval false   fail to read file
 /// @note   not support 16bit image
 ///
-static bool read_pnm_ascii(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
+static bool read_pnm_ascii(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     int tmp;
 
@@ -198,7 +198,7 @@ static bool read_pnm_ascii(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
 /// @retval false   fail to read file
 /// @note   not support 16bit image
 ///
-static bool read_pnm_binary(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
+static bool read_pnm_binary(FILE *fp, img_t *img, int max, uint8_t n_magic)
 {
     uint8_t *row;
     uint8_t *item;
@@ -282,7 +282,7 @@ static bool read_pnm_binary(FILE *fp, cimg_t *img, int max, uint8_t n_magic)
     return true;
 }
 
-cimg_t *read_pnm(const char *src)
+img_t *read_pnm(const char *src)
 {
     FILE *fp = fopen(src, "rb");
 
@@ -335,7 +335,7 @@ cimg_t *read_pnm(const char *src)
         }
     }
 
-    cimg_t *img = cimg_create(width, height, channels);
+    img_t *img = img_create(width, height, channels);
 
     // ASCII format
     if (n_magic <= 3) {
@@ -364,7 +364,7 @@ cimg_t *read_pnm(const char *src)
 /// @retval false   fail to write file
 /// @note   not support 16bit image
 ///
-static bool write_pnm_ascii(FILE *fp, cimg_t *img, uint8_t n_magic)
+static bool write_pnm_ascii(FILE *fp, img_t *img, uint8_t n_magic)
 {
     // grayscale
     if ((n_magic == 1) || (n_magic == 2)) {
@@ -400,7 +400,7 @@ static bool write_pnm_ascii(FILE *fp, cimg_t *img, uint8_t n_magic)
 /// @retval false   fail to write file
 /// @note   not support 16bit image
 ///
-static bool write_pnm_binary(FILE *fp, cimg_t *img, uint8_t n_magic)
+static bool write_pnm_binary(FILE *fp, img_t *img, uint8_t n_magic)
 {
     // binary
     if (n_magic == 4) {
@@ -448,7 +448,7 @@ static bool write_pnm_binary(FILE *fp, cimg_t *img, uint8_t n_magic)
     return true;
 }
 
-bool write_pnm(cimg_t *img, const char *dst, PNM_FORMAT format)
+bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format)
 {
     if (img == NULL) {
         return false;

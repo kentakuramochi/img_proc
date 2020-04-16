@@ -7,7 +7,7 @@
 #ifndef PNM_H
 #define PNM_H
 
-#include "cimg.h"
+#include "img.h"
 
 #include <stdbool.h>
 
@@ -27,7 +27,7 @@ typedef enum {
 /// @return pointer to image, NULL if failed
 /// @note   not support 2 Byte value
 ///
-cimg_t *read_pnm(const char *src);
+img_t *read_pnm(const char *src);
 
 ///
 /// @fn     write_pnm
@@ -39,6 +39,6 @@ cimg_t *read_pnm(const char *src);
 /// @retval false   fail to save image
 /// @note   not support 2 Byte value
 ///
-bool write_pnm(cimg_t *img, const char *dst, PNM_FORMAT format);
+bool write_pnm(img_t *img, const char *dst, PNM_FORMAT format);
 
 #endif // PNM_H
