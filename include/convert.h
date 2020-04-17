@@ -1,7 +1,6 @@
 ///
 /// @file   convert.h
 /// @brief  image conversion functions
-/// @author kentakuramochi
 ///
 
 #ifndef CONVERT_H

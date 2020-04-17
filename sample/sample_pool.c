@@ -1,7 +1,6 @@
 ///
 /// @file   sample_pool.c
 /// @brief  sample of pooling
-/// @author kentakuramochi
 ///
 
 #include <stdio.h>

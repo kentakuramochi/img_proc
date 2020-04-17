@@ -1,7 +1,6 @@
 ///
 /// @file   convert.c
 /// @brief  image conversion function
-/// @author kentakuramochi
 ///
 
 #include "convert.h"

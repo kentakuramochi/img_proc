@@ -1,7 +1,6 @@
 ///
 /// @file   filter.h
 /// @brief  image filtering functions
-/// @author kentakuramochi
 ///
 
 #ifndef FILTER_H

@@ -1,7 +1,6 @@
 ///
 /// @file   img.h
 /// @brief  base image structure
-/// @author kentakuramochi
 ///
 
 #include "img.h"

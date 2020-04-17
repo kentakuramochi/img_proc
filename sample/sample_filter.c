@@ -1,7 +1,6 @@
 ///
 /// @file   sample_filter.c
 /// @brief  sample of filtering
-/// @author kentakuramochi
 ///
 
 #include <stdio.h>

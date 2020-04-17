@@ -1,7 +1,6 @@
 ///
 /// @file   sample_convert.c
 /// @brief  sample of image conversion
-/// @author kentakuramochi
 ///
 
 #include <stdio.h>

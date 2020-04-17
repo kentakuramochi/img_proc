@@ -1,7 +1,6 @@
 ///
 /// @file   pool.h
 /// @brief  pooling functions
-/// @author kentakuramochi
 ///
 
 #ifndef POOL_H

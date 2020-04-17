@@ -1,7 +1,6 @@
 ///
 /// @file   pnm.c
 /// @brief  PNM image utilities
-/// @author kentakuramochi
 ///
 
 #include "pnm.h"

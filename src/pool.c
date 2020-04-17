@@ -1,7 +1,6 @@
 ///
 /// @file   pool.c
 /// @brief  pooling functions
-/// @author kentakuramochi
 ///
 
 #include "pool.h"
