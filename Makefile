@@ -35,8 +35,10 @@ all: test
 -include $(DEPS)
 
 test: $(SAMPS)
-	@mkdir -p $(BUILDDIR)/$(TYPE)/sample/out
-	@for i in ./$(SAMPS); do echo $$i; done
+	@mkdir -p $(BUILDDIR)/out;
+	@for S in $(SAMPS); do \
+		./$$S ./data/lenna_p6.ppm; \
+	done
 
 $(LIB): $(OBJS)
 	$(AR) $@ $^

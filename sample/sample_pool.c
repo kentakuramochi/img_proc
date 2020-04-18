@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
     img_t *dst;
     
     dst = average_pooling(src, 8, 8);
-    write_pnm(dst, "./build/sample/out/avgpool_8x8.ppm", fmt);
+    write_pnm(dst, "./build/out/avgpool_8x8.ppm", fmt);
     img_delete(dst);
 
     dst = max_pooling(src, 8, 8);
-    write_pnm(dst, "./build/sample/out/maxpool_8x8.ppm", fmt);
+    write_pnm(dst, "./build/out/maxpool_8x8.ppm", fmt);
     img_delete(dst);
 
     img_delete(src);
