@@ -28,11 +28,15 @@ SAMPS    := $(addprefix $(BUILDDIR)/$(TYPE)/,$(SAMPSRCS:.c=))
 AR := ar rcs
 RM := rm -rf
 
-.PHONY: all sample clean
+.PHONY: all test clean
 
-all: sample
+all: test 
 
 -include $(DEPS)
+
+test: $(SAMPS)
+	@mkdir -p $(BUILDDIR)/$(TYPE)/sample/out
+	@for i in ./$(SAMPS); do echo $$i; done
 
 $(LIB): $(OBJS)
 	$(AR) $@ $^
@@ -40,8 +44,6 @@ $(LIB): $(OBJS)
 $(BUILDDIR)/$(TYPE)/%.o: %.c
 	@mkdir -p $(BUILDDIR)/$(TYPE)/$(SRCDIR)
 	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
-
-sample: $(SAMPS)
 
 $(SAMPS): $(LIB)
 
