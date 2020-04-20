@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     PNM_FORMAT fmt = PNM_FORMAT_ASCII;
 
     img_t *dst;
-    
+
     dst = average_pooling(src, 8, 8);
     write_pnm(dst, "./build/out/avgpool_8x8.ppm", fmt);
     img_delete(dst);

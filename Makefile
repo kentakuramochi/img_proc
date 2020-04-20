@@ -30,7 +30,7 @@ RM := rm -rf
 
 .PHONY: all test clean
 
-all: test 
+all: test
 
 -include $(DEPS)
 
