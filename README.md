@@ -34,7 +34,8 @@ Inspired by [yoyoyo-yo/Gasyori100knock](https://github.com/yoyoyo-yo/Gasyori100k
 Build targets are put on `./build` (out-of-source build)
 
 ```sh
-# build
+# build and test
+# output files are in ./build/out
 $ make
 
 # debug build
