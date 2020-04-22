@@ -119,4 +119,14 @@ img_t *bilinear(img_t *src, double scale_x, double scale_y);
 ///
 img_t *biqubic(img_t *src, double scale_x, double scale_y);
 
+///
+/// @fn     affine
+/// @brief  affine transform
+/// @param  src     [in]    pointer to source image
+/// @param  scale_x [in]    scale ratio for x direction
+/// @param  scale_y [in]    scale ratio for y direction
+/// @return pointer to transformed image, NULL if failed
+///
+img_t *affine(img_t *src, int tx, int ty);
+
 #endif // CONVERT_H

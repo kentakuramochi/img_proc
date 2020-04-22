@@ -315,3 +315,10 @@ img_t *biqubic(img_t *src, double scale_x, double scale_y)
 
     return dst;
 }
+
+img_t *affine(img_t *src, int tx, int ty)
+{
+    img_t *dst = img_create(src->width, src->height, src->channels);
+
+    return dst;
+}
