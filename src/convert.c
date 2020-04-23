@@ -316,9 +316,35 @@ img_t *biqubic(img_t *src, double scale_x, double scale_y)
     return dst;
 }
 
-img_t *affine(img_t *src, int tx, int ty)
+img_t *affine(img_t *src, double a, double b, double c, double d, int tx, int ty)
 {
-    img_t *dst = img_create(src->width, src->height, src->channels);
+    img_t *dst = img_create((int)(a * src->width), (int)(d * src->height), src->channels);
+
+    /* matrix
+    a, b, tx,
+    c, d, ty,
+    0, 0, 1
+    */
+
+    double det = 1 / (a * d - b * c);
+
+    for (int y = 0; y < dst->height; y++) {
+        for (int x = 0; x < dst->width; x++) {
+            int src_x = (int)((d * x - b * y) * det - tx);
+            int src_y = (int)((-c * x + a * y) * det - ty);
+
+            if ((src_x < 0) || (src_x >= src->width) || (src_y < 0) || (src_y >= src->height)) {
+                for (int c = 0; c < dst->channels; c++) {
+                    dst->data[y * dst->stride + x * dst->channels + c] = 0;
+                }
+            } else {
+                for (int c = 0; c < dst->channels; c++) {
+                    dst->data[y * dst->stride + x * dst->channels + c] = 
+                        src->data[src_y * src->stride + src_x * src->channels + c];
+                }
+            }
+        }
+    }
 
     return dst;
 }

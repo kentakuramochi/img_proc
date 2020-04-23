@@ -5,9 +5,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "convert.h"
 #include "pnm.h"
+#include "util.h"
 
 int main(int argc, char *argv[])
 {
@@ -78,6 +80,18 @@ int main(int argc, char *argv[])
 
     dst = biqubic(src, 1.5, 1.5);
     write_pnm(dst, "./build/out/biqubic_x1.5.ppm", fmt);
+    img_delete(dst);
+
+    dst = affine(src, 1, 0, 0, 1, 30, -30);
+    write_pnm(dst, "./build/out/affine_shift.ppm", fmt);
+    img_delete(dst);
+
+    dst = affine(src, 1.3, 0, 0, 0.8, 30, -30);
+    write_pnm(dst, "./build/out/affine_scale_shift.ppm", fmt);
+    img_delete(dst);
+
+    dst = affine(src, cos(-30 * M_PI / 180), -sin(-30 * M_PI / 180), sin(-30 * M_PI / 180), cos(-30 * M_PI / 180), 0, 0);
+    write_pnm(dst, "./build/out/affine_rot30.ppm", fmt);
     img_delete(dst);
 
     img_delete(src);
