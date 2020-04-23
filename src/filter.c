@@ -10,11 +10,7 @@
 #include <math.h>
 #include <float.h>
 
-///
-/// @def    M_PI
-/// @brief  pi constant used for calculation
-///
-#define M_PI 3.14159265358979
+#include "util.h"
 
 ///
 /// @typedef    filter_kernel
@@ -57,18 +53,6 @@ static uint8_t kernel_conv(img_t *img, int x, int y, int c, double *kernel, int 
     sum = fmin(sum, UINT8_MAX);
 
     return (uint8_t)sum;
-}
-
-///
-/// @fn     cmp_ascend
-/// @brief  compare function for qsort() with ascending order
-/// @param  a   [in]    value0 to be sorted
-/// @param  b   [in]    value1 to be sorted
-/// @return positive if a > b, negative if a < b, 0 otherwise
-///
-static int cmp_ascend(const void *a, const void *b)
-{
-    return *(uint8_t*)a - *(uint8_t*)b;
 }
 
 ///
