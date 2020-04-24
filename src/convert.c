@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#include "util.h"
+
 /// @fn     rgb_to_y_BT601
 /// @brief  convert RGB to Y of YUV by ITU-R BT.601
 /// @param  r   [in]   source R value of RGB
@@ -316,15 +318,28 @@ img_t *biqubic(img_t *src, double scale_x, double scale_y)
     return dst;
 }
 
-img_t *affine(img_t *src, double a, double b, double c, double d, int tx, int ty)
+img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty)
 {
-    img_t *dst = img_create((int)(a * src->width), (int)(d * src->height), src->channels);
+    img_t *dst = img_create((int)(sx * src->width), (int)(sy * src->height), src->channels);
 
+    double a, b, c, d;
     /* matrix
     a, b, tx,
     c, d, ty,
     0, 0, 1
     */
+
+    if (deg != 0) {
+        a = cos(deg * M_PI / 180);
+        b = sin(deg * M_PI / 180);
+        c = -sin(deg * M_PI / 180);
+        d = cos(deg * M_PI / 180);
+    } else {
+        a =  sx;
+        b =  0;
+        c =  0;
+        d =  sy;
+    }
 
     double det = 1 / (a * d - b * c);
 

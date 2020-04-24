@@ -123,14 +123,13 @@ img_t *biqubic(img_t *src, double scale_x, double scale_y);
 /// @fn     affine
 /// @brief  affine transform
 /// @param  src [in]    pointer to source image
-/// @param  a   [in]    factor a
-/// @param  b   [in]    factor b
-/// @param  c   [in]    factor c
-/// @param  d   [in]    factor d
+/// @param  sx  [in]    scale factor x
+/// @param  sy  [in]    scale factor y
+/// @param  deg [in]    rotaion degree
 /// @param  tx  [in]    shift x
 /// @param  ty  [in]    shift y
 /// @return pointer to transformed image, NULL if failed
 ///
-img_t *affine(img_t *src, double a, double b, double c, double d, int tx, int ty);
+img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty);
 
 #endif // CONVERT_H
