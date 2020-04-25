@@ -56,6 +56,18 @@ static uint8_t kernel_conv(img_t *img, int x, int y, int c, double *kernel, int 
 }
 
 ///
+/// @fn     cmp_ascend
+/// @brief  compare function for qsort() with ascending order
+/// @param  a   [in]    value0 to be sorted
+/// @param  b   [in]    value1 to be sorted
+/// @return positive if a > b, negative if a < b, 0 otherwise
+///
+static int cmp_ascend(const void *a, const void *b)
+{
+    return *(uint8_t*)a - *(uint8_t*)b;
+}
+
+///
 /// @fn     kernel_median
 /// @brief  get median in kernel
 /// @param  src     [in]    pointer to source image
@@ -102,12 +114,11 @@ static uint8_t kernel_median(img_t *img, int x, int y, int c, uint8_t *kernel, i
 /// @param  x       [in]    x coordinate
 /// @param  y       [in]    y coordinate
 /// @param  c       [in]    channel
-/// @param  kernel  [in]    kernel (not used, for funcptr argument) 
 /// @param  kw      [in]    kernel width
 /// @param  kh      [in]    kernel height
 /// @return median in kernel
 ///
-static uint8_t kernel_maxmin(img_t *img, int x, int y, int c, double *kernel, int kw, int kh)
+static uint8_t kernel_maxmin(img_t *img, int x, int y, int c, int kw, int kh)
 {
     int ofs_x = kw / 2;
     int ofs_y = kh / 2;
@@ -262,7 +273,7 @@ img_t *maxmin_filter(img_t *src, int filter_w, int filter_h)
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
             for (int c = 0; c < dst->channels; c++) {
-                dst->data[y * dst->stride + x * dst->channels + c] = kernel_maxmin(src, x, y, c, NULL, filter_w, filter_h);
+                dst->data[y * dst->stride + x * dst->channels + c] = kernel_maxmin(src, x, y, c, filter_w, filter_h);
             }
         }
     }

@@ -323,11 +323,10 @@ img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty)
     img_t *dst = img_create((int)(sx * src->width), (int)(sy * src->height), src->channels);
 
     double a, b, c, d;
-    /* matrix
-    a, b, tx,
-    c, d, ty,
-    0, 0, 1
-    */
+    // matrix
+    // [ a, b, tx ]
+    // [ c, d, ty ]
+    // [ 0, 0, 1  ]
 
     if (deg != 0) {
         a = cos(deg * M_PI / 180);
