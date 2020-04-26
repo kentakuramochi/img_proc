@@ -333,6 +333,9 @@ img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty)
         b = sin(deg * M_PI / 180);
         c = -sin(deg * M_PI / 180);
         d = cos(deg * M_PI / 180);
+
+        tx = -src->width / 2;
+        ty = -src->height / 2;
     } else {
         a =  sx;
         b =  0;
