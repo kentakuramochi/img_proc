@@ -323,6 +323,8 @@ img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty)
     img_t *dst = img_create((int)(sx * src->width), (int)(sy * src->height), src->channels);
 
     double a, b, c, d;
+    double det;
+
     // matrix
     // [ a, b, tx ]
     // [ c, d, ty ]
@@ -334,16 +336,24 @@ img_t *affine(img_t *src, double sx, double sy, double deg, int tx, int ty)
         c = -sin(deg * M_PI / 180);
         d = cos(deg * M_PI / 180);
 
-        tx = -src->width / 2;
-        ty = -src->height / 2;
+        tx = 0;
+        ty = 0;
+
+        det = 1 / (a * d - b * c);
+
+        double cx = src->width / 2;
+        double cy = src->height / 2;
+
+        tx = (int)((d * cx - b * cy) / det - cx);
+        ty = (int)((-c * cx + a * cy) / det - cy);
     } else {
         a =  sx;
         b =  0;
         c =  0;
         d =  sy;
-    }
 
-    double det = 1 / (a * d - b * c);
+        det = 1 / (a * d - b * c);
+    }
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
