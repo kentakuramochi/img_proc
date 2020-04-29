@@ -359,16 +359,14 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
         b = tan(skew_y * M_PI / 180);
         c = tan(skew_x * M_PI / 180);
         d = 0;
-
-        det = 1 / (a * d - b * c);
     } else {
         a =  sx;
         b =  0;
         c =  0;
         d =  sy;
-
-        det = 1 / (a * d - b * c);
     }
+
+    det = 1 / (a * d - b * c);
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
