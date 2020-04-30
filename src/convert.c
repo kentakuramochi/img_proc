@@ -323,20 +323,13 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
     int dst_w = (int)(sx * src->width);
     int dst_h = (int)(sy * src->height);
 
-    if ((skew_x != 0) || (skew_y != 0)) {
-        dst_w += (int)(dst_h * tan(skew_y * M_PI / 180));
-        dst_h += (int)(dst_w * tan(skew_x * M_PI / 180));
-    }
-
-    img_t *dst = img_create(dst_w, dst_h, src->channels);
-
-    double a, b, c, d;
-    double det;
-
     // matrix
     // [ a, b, tx ]
     // [ c, d, ty ]
     // [ 0, 0, 1  ]
+
+    double a, b, c, d;
+    double det;
 
     if (deg != 0) {
         a = cos(deg * M_PI / 180);
@@ -347,10 +340,10 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
         tx = 0;
         ty = 0;
 
-        det = 1 / (a * d - b * c);
-
         double cx = src->width / 2;
         double cy = src->height / 2;
+
+        det = 1 / (a * d - b * c);
 
         tx = (int)((d * cx - b * cy) / det - cx);
         ty = (int)((-c * cx + a * cy) / det - cy);
@@ -358,15 +351,22 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
         a = 1;
         b = tan(skew_y * M_PI / 180);
         c = tan(skew_x * M_PI / 180);
-        d = 0;
+        d = 1;
+
+        dst_w += (int)(dst_h * tan(skew_y * M_PI / 180));
+        dst_h += (int)(dst_w * tan(skew_x * M_PI / 180));
+
+        det = 1 / (a * d - b * c);
     } else {
         a =  sx;
         b =  0;
         c =  0;
         d =  sy;
+
+        det = 1 / (a * d - b * c);
     }
 
-    det = 1 / (a * d - b * c);
+    img_t *dst = img_create(dst_w, dst_h, src->channels);
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
