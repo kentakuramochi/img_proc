@@ -318,10 +318,10 @@ img_t *biqubic(img_t *src, double scale_x, double scale_y)
     return dst;
 }
 
-img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, double skew_y, int tx, int ty)
+img_t *affine(img_t *src, double scale_x, double scale_y, double rot, double skew_x, double skew_y, int shift_x, int shift_y)
 {
-    int dst_w = (int)(sx * src->width);
-    int dst_h = (int)(sy * src->height);
+    int dst_w = (int)(scale_x * src->width);
+    int dst_h = (int)(scale_y * src->height);
 
     // matrix
     // [ a, b, tx ]
@@ -331,22 +331,22 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
     double a, b, c, d;
     double det;
 
-    if (deg != 0) {
-        a = cos(deg * M_PI / 180);
-        b = sin(deg * M_PI / 180);
-        c = -sin(deg * M_PI / 180);
-        d = cos(deg * M_PI / 180);
+    if (rot != 0) {
+        a = cos(rot * M_PI / 180);
+        b = sin(rot * M_PI / 180);
+        c = -sin(rot * M_PI / 180);
+        d = cos(rot * M_PI / 180);
 
-        tx = 0;
-        ty = 0;
+        shift_x = 0;
+        shift_y = 0;
 
         double cx = src->width / 2;
         double cy = src->height / 2;
 
         det = 1 / (a * d - b * c);
 
-        tx = (int)((d * cx - b * cy) / det - cx);
-        ty = (int)((-c * cx + a * cy) / det - cy);
+        shift_x = (int)((d * cx - b * cy) / det - cx);
+        shift_y = (int)((-c * cx + a * cy) / det - cy);
     } else if ((skew_x != 0) || (skew_y != 0)) {
         a = 1;
         b = tan(skew_y * M_PI / 180);
@@ -358,10 +358,10 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
 
         det = 1 / (a * d - b * c);
     } else {
-        a =  sx;
+        a =  scale_x;
         b =  0;
         c =  0;
-        d =  sy;
+        d =  scale_y;
 
         det = 1 / (a * d - b * c);
     }
@@ -370,8 +370,8 @@ img_t *affine(img_t *src, double sx, double sy, double deg, double skew_x, doubl
 
     for (int y = 0; y < dst->height; y++) {
         for (int x = 0; x < dst->width; x++) {
-            int src_x = (int)((d * x - b * y) * det - tx);
-            int src_y = (int)((-c * x + a * y) * det - ty);
+            int src_x = (int)((d * x - b * y) * det - shift_x);
+            int src_y = (int)((-c * x + a * y) * det - shift_y);
 
             if ((src_x < 0) || (src_x >= src->width) || (src_y < 0) || (src_y >= src->height)) {
                 for (int c = 0; c < dst->channels; c++) {
